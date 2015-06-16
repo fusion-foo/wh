@@ -1,0 +1,21 @@
+
+<for start='0' end='$ayitem'   step='1' comparison='lt'>
+
+
+    <div class="index_tap total">
+        <ul  class="inner" style="background-color:{$itemArr[$i]['bgcolor']};
+                                 border:{$itemArr[$i]['bgsolid']}">
+            <li class="index_tap_item total_fans extra">
+                <a href=" {$itemArr[$i]['link']} ">
+                            <span class="tap_inner">
+                                <i class="icon_index_tap" style="{$itemArr[$i]['icon']}"></i>
+                                <em class="number">{$itemArr[$i]['data']} </em>
+                                <strong class="title">{$itemArr[$i]['tetil']}</strong>
+                            </span>
+                </a>
+
+
+            </li>
+        </ul>
+    </div>
+</for>

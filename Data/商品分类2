@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "name": "All Tasks",
+    "children": [
+      {
+        "id": 2,
+        "name": "Designing",
+        "selling": "￥12.3",
+        "sales": "￥123 | 10件",
+        "sold": 60,
+        "status": "在售",
+        "preview": "224",
+        "like": "⋆⋆⋆",
+        "_parentId": 1,
+        "state": "closed",
+        "children": [
+          {
+            "id": 21,
+            "name": "Database",
+            "selling": "￥12.3",
+            "sales": "￥123 | 10件",
+            "sold": 60,
+            "status": "在售",
+            "preview": "224",
+            "like": "⋆⋆⋆",
+            "_parentId": 2,
+            "state": "open"
+          },
+          {
+            "id": 22,
+            "name": "UML",
+            "selling": "￥12.3",
+            "sales": "￥121 8件",
+            "sold": 60,
+            "status": "在售",
+            "preview": "224",
+            "like": "⋆⋆⋆",
+            "_parentId": 2,
+            "state": "open"
+          },
+          {
+            "id": 23,
+            "name": "Export Document",
+            "selling": "￥12.3",
+            "sales": "￥123 | 10件",
+            "sold": 60,
+            "status": "在售",
+            "preview": "224",
+            "like": "⋆⋆⋆",
+            "_parentId": 2,
+            "state": "open"
+          }
+        ]
+      },
+      {
+        "id": 16,
+        "name": "埼村",
+        "selling": "￥12.3",
+        "sales": "￥123 | 10件",
+        "sold": 60,
+        "status": "在售",
+        "preview": "224",
+        "like": "⋆⋆⋆",
+        "_parentId": 1,
+        "iconCls": "icon-ok",
+        "state": "open"
+      }
+    ],
+    "state": "closed"
+  }
+]
