@@ -164,7 +164,7 @@ var  ROOT = "/wh";
       </ul>
 </div><?php endif; ?>
 <?php if(!empty($normal_tips)): ?><p class="normal_tips"><b class="fa fa-info-circle"></b> <?php echo ($normal_tips); ?></p><?php endif; ?>
-            <?php if($need_datainfo): $__FOR_START_1190778717__=0;$__FOR_END_1190778717__=$ayitem;for($i=$__FOR_START_1190778717__;$i < $__FOR_END_1190778717__;$i+=1){ ?><div class="index_tap total">
+            <?php if($need_datainfo): $__FOR_START_1005788823__=0;$__FOR_END_1005788823__=$ayitem;for($i=$__FOR_START_1005788823__;$i < $__FOR_END_1005788823__;$i+=1){ ?><div class="index_tap total">
         <ul  class="inner" style="background-color:<?php echo ($itemArr[$i]['bgcolor']); ?>;
                                  border:<?php echo ($itemArr[$i]['bgsolid']); ?>">
             <li class="index_tap_item total_fans extra">
@@ -316,7 +316,9 @@ var  ROOT = "/wh";
                             <div class="field">
                                 <label><h5>商品图册:</h5></label>
                                 <div style="width: 440px" >
-                                    <div id="demoh" class="demoh" style="float:left"></div>
+                                    <div id="demoh" class="demoh" style="float:left">
+
+                                    </div>
                                 </div>
                                 <span class="error"></span>
                             </div>
@@ -392,8 +394,8 @@ var  ROOT = "/wh";
                             console.info(allFiles);
                         },
                         onShowedFiles: function(allFiles){
-                            var el = document.getElementById('preview');
-                            var sortable = Sortable.create(el);
+                            //var el = document.getElementById('preview');
+                            //var sortable = Sortable.create(el);
                         },
                         onDelete: function(file, surplusFiles){                     // 删除一个文件的回调方法
                             console.info("当前删除了此文件：");

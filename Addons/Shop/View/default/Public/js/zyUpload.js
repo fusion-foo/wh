@@ -30,7 +30,7 @@
 					onDelete		 : function(file, files){},     // 删除一个文件的回调方法 file:当前删除的文件  files:删除之后的文件
 					onSuccess		 : function(file){},            // 文件上传成功的回调方法
 					onFailure		 : function(file){},            // 文件上传失败的回调方法
-					onComplete		 : function(responseInfo){},    // 上传完成的回调方法
+					onComplete		 : function(responseInfo){}    // 上传完成的回调方法
 			};
 			
 			para = $.extend(defaults,options);
@@ -57,7 +57,7 @@
 					html += '			<div class="upload_choose">';
 	            	html += '				<div class="convent_choice">';
 	            	html += '					<div class="andArea">';
-	            	html += '						<div class="filePicker">添加图片文件</div>';
+	            	html += '						<div class="filePicker">添加商品图片</div>';
 	            	html += '						<input id="fileImage" type="file" size="30" name="fileselect[]" '+multiple+'>';
 	            	html += '					</div>';
 	            	html += '				</div>';
@@ -332,7 +332,7 @@
 					onSuccess: function(file, response) {
 						$("#uploadProgress_" + file.index).hide();
 						$("#uploadSuccess_" + file.index).show();
-						$("#uploadInf").append("<p>上传成功，文件地址是：" + response + "</p>");
+						$("#uploadInf").append("<p>上传成功!</p>");
 						// 根据配置参数确定隐不隐藏上传成功的文件
 						if(para.finishDel){
 							// 移除效果

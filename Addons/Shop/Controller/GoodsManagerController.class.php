@@ -8,6 +8,7 @@
 
 namespace Addons\Shop\Controller;
 use Home\Controller\AddonsController;
+use Qiniu\Auth;
 
 class GoodsManagerController extends BaseController{
 
@@ -29,6 +30,17 @@ class GoodsManagerController extends BaseController{
     public function getCategoryJson(){
            $ary = get_category_array();
            return  $this->ajaxReturn($ary);
+    }
+
+    public function get7Token(){
+        $accessKey = 'BFdmEMJ4SeJZdnvIOTLo6wMG2M_bjchxoPecIJk7';
+        $secretKey = '1BbubBnjAzoN9uXQKdVY0SPlQt2xq8m24o56OiWP';
+        $auth = new Auth($accessKey, $secretKey);
+
+        $bucket = 'weixin';
+        $token = $auth->uploadToken($bucket);
+        $returnStr = '{"uptoken":'.$token.'}';
+        echo $returnStr;
     }
 
     public function addCateNode(){
