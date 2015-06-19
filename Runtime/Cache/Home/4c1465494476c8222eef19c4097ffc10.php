@@ -164,7 +164,7 @@ var  ROOT = "/wh";
       </ul>
 </div><?php endif; ?>
 <?php if(!empty($normal_tips)): ?><p class="normal_tips"><b class="fa fa-info-circle"></b> <?php echo ($normal_tips); ?></p><?php endif; ?>
-            <?php if($need_datainfo): $__FOR_START_1005788823__=0;$__FOR_END_1005788823__=$ayitem;for($i=$__FOR_START_1005788823__;$i < $__FOR_END_1005788823__;$i+=1){ ?><div class="index_tap total">
+            <?php if($need_datainfo): $__FOR_START_1916178266__=0;$__FOR_END_1916178266__=$ayitem;for($i=$__FOR_START_1916178266__;$i < $__FOR_END_1916178266__;$i+=1){ ?><div class="index_tap total">
         <ul  class="inner" style="background-color:<?php echo ($itemArr[$i]['bgcolor']); ?>;
                                  border:<?php echo ($itemArr[$i]['bgsolid']); ?>">
             <li class="index_tap_item total_fans extra">
@@ -381,11 +381,12 @@ var  ROOT = "/wh";
                         height           :   "400px",                 // 宽度
                         itemWidth        :   "120px",                 // 文件项的宽度
                         itemHeight       :   "100px",                 // 文件项的高度
-                        url              :   "/upload/UploadAction",  // 上传文件的路径
+                        url              :   "http://upload.qiniu.com/",  // 上传文件的路径
                         multiple         :   true,                    // 是否可以多个文件上传
                         dragDrop         :   true,                    // 是否可以拖动上传文件
                         del              :   true,                    // 是否可以删除文件
                         finishDel        :   false,  				  // 是否在上传文件完成后删除预览
+                        get7TokenURL     :"<?php echo addons_url ( 'Shop://GoodsManager/get7Token');?>",
                         /* 外部获得的回调接口 */
                         onSelect: function(files, allFiles){                    // 选择文件的回调方法
                             console.info("当前选择了以下文件：");
@@ -394,8 +395,8 @@ var  ROOT = "/wh";
                             console.info(allFiles);
                         },
                         onShowedFiles: function(allFiles){
-                            //var el = document.getElementById('preview');
-                            //var sortable = Sortable.create(el);
+                            var el = document.getElementById('preview');
+                            var sortable = Sortable.create(el);
                         },
                         onDelete: function(file, surplusFiles){                     // 删除一个文件的回调方法
                             console.info("当前删除了此文件：");

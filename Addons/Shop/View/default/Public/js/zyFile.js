@@ -11,6 +11,7 @@ var ZYFILE = {
 		lastUploadFile : [],          // 上一次选择的文件数组，方便继续上传使用
 		perUploadFile : [],           // 存放永久的文件数组，方便删除使用
 		fileNum : 0,                  // 代表文件总个数，因为涉及到继续添加，所以下一次添加需要在它的基础上添加索引
+        get7TokenURL:'',
 		/* 提供给外部的接口 */
 		filterFile : function(files){ // 提供给外部的过滤文件格式等的接口，外部需要把过滤后的文件返回
 			return files;
@@ -135,24 +136,46 @@ var ZYFILE = {
 		// 上传多个文件
 		funUploadFiles : function(){
 			var self = this;  // 在each中this指向没个v  所以先将this保留
+            var upLoadToken = this.get7Token();
+
 			// 遍历所有文件  ，在调用单个文件上传的方法
 			$.each(this.uploadFile, function(k, v){
-				self.funUploadFile(v);
+				self.funUploadFile(v,upLoadToken);
 			});
 		},
 		// 上传单个个文件
-		funUploadFile : function(file){
+		funUploadFile : function(file,upLoadToken){
 			var self = this;  // 在each中this指向没个v  所以先将this保留
-			
+            var uploadURL = 'http://up.qiniu.com/';
+            var xhr = new XMLHttpRequest();
+
+
+
+
 			var formdata = new FormData();
-			formdata.append("fileList", file);	         		
-			var xhr = new XMLHttpRequest();
-			// 绑定上传事件
-			// 进度
+			formdata.append("token", upLoadToken);
+            var fr = new FileReader();
+            fr.onloadend = function () {
+                var result = this.result;
+
+                formdata.append("key", file.name);
+
+                formdata.append("file", file);
+
+                xhr.open("POST",self.url, true);
+                xhr.setRequestHeader("X_FILENAME", file.name);
+                //xhr.setRequestHeader("Content-type","multipart/form-data");
+                xhr.send(formdata);
+            };
+            fr.readAsBinaryString(file);
+
+
+            // 绑定上传事件
+            // 进度
 		    xhr.upload.addEventListener("progress",	 function(e){
 		    	// 回调到外部
 		    	self.onProgress(file, e.loaded, e.total);
-		    }, false); 
+		    }, false);
 		    // 完成
 		    xhr.addEventListener("load", function(e){
 	    		// 从文件中删除上传成功的文件  false是不执行onDelete回调方法
@@ -163,17 +186,22 @@ var ZYFILE = {
 		    		// 回调全部完成方法
 		    		self.onComplete("全部完成");
 		    	}
-		    }, false);  
+		    }, false);
 		    // 错误
 		    xhr.addEventListener("error", function(e){
 		    	// 回调到外部
 		    	self.onFailure(file, xhr.responseText);
-		    }, false);  
-			
-			xhr.open("POST",self.url, true);
-			xhr.setRequestHeader("X_FILENAME", file.name);
-			xhr.send(formdata);
+		    }, false);
+
+
 		},
+
+        get7Token:function(){
+            var ajURL = this.get7TokenURL;
+            var resultData = $.ajax({url:ajURL,async:false});
+            return resultData.responseText;
+        },
+
 		// 返回需要上传的文件
 		funReturnNeedFiles : function(){
 			return this.uploadFile;

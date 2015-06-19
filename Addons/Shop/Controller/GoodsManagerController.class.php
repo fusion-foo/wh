@@ -38,9 +38,8 @@ class GoodsManagerController extends BaseController{
         $auth = new Auth($accessKey, $secretKey);
 
         $bucket = 'weixin';
-        $token = $auth->uploadToken($bucket);
-        $returnStr = '{"uptoken":'.$token.'}';
-        echo $returnStr;
+        $token = $auth->uploadToken($bucket, null, 3600);
+        echo $token;
     }
 
     public function addCateNode(){

@@ -25,6 +25,7 @@
 					dragDrop         : true,  						// 是否可以拖动上传文件
 					del              : true,  						// 是否可以删除文件
 					finishDel        : false,  						// 是否在上传文件完成后删除预览
+                    get7TokenURL     : "",
 					/* 提供给外部的接口方法 */
 					onSelect         : function(selectFiles, files){},// 选择文件的回调方法  selectFile:当前选中的文件  allFiles:还没上传的全部文件
 					onDelete		 : function(file, files){},     // 删除一个文件的回调方法 file:当前删除的文件  files:删除之后的文件
@@ -52,6 +53,7 @@
 				
 				if(para.dragDrop){
 					// 创建带有拖动的html
+                    html += '<form id="uploadForm" action="'+para.url+'" method="post" enctype="multipart/form-data">';
 					html += '	<div class="upload_box">';
 					html += '		<div class="upload_main">';
 					html += '			<div class="upload_choose">';
@@ -77,6 +79,7 @@
 					html += '		</div>';
 					html += '		<div id="uploadInf" class="upload_inf"></div>';
 					html += '	</div>';
+                    html += '</form>';
 				}else{
 					var imgWidth = parseInt(para.itemWidth.replace("px", ""))-15;
 					
@@ -238,7 +241,7 @@
 					uploadInput: $("#fileSubmit").get(0),
 					dragDrop: $("#fileDragArea").get(0),
 					url: $("#uploadForm").attr("action"),
-					
+                    get7TokenURL:para.get7TokenURL,
 					filterFile: function(files) {
 						// 过滤合格的文件
 						return self.funFilterEligibleFile(files);
