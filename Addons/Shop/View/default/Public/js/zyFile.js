@@ -146,28 +146,16 @@ var ZYFILE = {
 		// 上传单个个文件
 		funUploadFile : function(file,upLoadToken){
 			var self = this;  // 在each中this指向没个v  所以先将this保留
-            var uploadURL = 'http://up.qiniu.com/';
             var xhr = new XMLHttpRequest();
 
 
 
-
+            var comName = this.getComName(file);
 			var formdata = new FormData();
-			formdata.append("token", upLoadToken);
-            var fr = new FileReader();
-            fr.onloadend = function () {
-                var result = this.result;
-
-                formdata.append("key", file.name);
-
+			    formdata.append("token", upLoadToken);
+                formdata.append("key", comName);
                 formdata.append("file", file);
 
-                xhr.open("POST",self.url, true);
-                xhr.setRequestHeader("X_FILENAME", file.name);
-                //xhr.setRequestHeader("Content-type","multipart/form-data");
-                xhr.send(formdata);
-            };
-            fr.readAsBinaryString(file);
 
 
             // 绑定上传事件
@@ -178,6 +166,8 @@ var ZYFILE = {
 		    }, false);
 		    // 完成
 		    xhr.addEventListener("load", function(e){
+
+                upFileNameAry.push(comName);
 	    		// 从文件中删除上传成功的文件  false是不执行onDelete回调方法
 		    	self.funDeleteFile(file.index, false);
 		    	// 回调到外部
@@ -194,7 +184,21 @@ var ZYFILE = {
 		    }, false);
 
 
-		},
+            xhr.open("POST",self.url, true);
+            xhr.setRequestHeader("X_FILENAME", file.name);
+            //xhr.setRequestHeader("Content-type","multipart/form-data");
+            xhr.send(formdata);
+
+
+        },
+
+        getComName:function(file){
+            var fileName = file.name.substr(0,file.name.lastIndexOf('.'));
+            return '{' + wname + '}_{' + addGName + '}_{' + fileName + '}.' + getExtension(file.name );
+            function getExtension(filename){
+                return (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename) : undefined;
+            }
+        },
 
         get7Token:function(){
             var ajURL = this.get7TokenURL;

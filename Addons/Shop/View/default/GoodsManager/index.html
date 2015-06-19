@@ -114,7 +114,7 @@
                             <!-- Text -->
                             <div class="field">
                                 <label class="main">商品名称:</label>
-                                <input name="username" type="text">
+                                <input name="goodsname" type="text">
                                 <span class="error"></span>
                             </div>
 
@@ -170,10 +170,6 @@
                                 <span class="error"></span>
                             </div>
                         </div>
-
-
-
-
                     </form>
                     <h6 class="modal-title"></h6>
                     <div style="text-align: right; margin-top: 5px">
@@ -188,15 +184,15 @@
                 var goodsData = {$goodsData};
                 var categoryData = {$categoryData};
                 var selectItemID = 0;
+                var wname = '{$member_public.public_name}';
+                var addGName = '未命名商品';
+                var upFileNameAry = [];
 
                 $.ajaxSetup({
                     cache: false
                 });
 
                 $(function(){
-
-
-
                     $('#expbtn').bind('click', function(event){
                         $('#tg').treegrid('expandAll');
                         event.preventDefault();
@@ -289,6 +285,7 @@
                     Custombox.open({
                         target: tagerModal,
                         effect: 'fadein',
+                        overlayClose:false,
                         width:modalWidth
                     });
                 }

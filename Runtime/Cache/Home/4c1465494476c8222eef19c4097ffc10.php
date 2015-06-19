@@ -164,7 +164,7 @@ var  ROOT = "/wh";
       </ul>
 </div><?php endif; ?>
 <?php if(!empty($normal_tips)): ?><p class="normal_tips"><b class="fa fa-info-circle"></b> <?php echo ($normal_tips); ?></p><?php endif; ?>
-            <?php if($need_datainfo): $__FOR_START_1916178266__=0;$__FOR_END_1916178266__=$ayitem;for($i=$__FOR_START_1916178266__;$i < $__FOR_END_1916178266__;$i+=1){ ?><div class="index_tap total">
+            <?php if($need_datainfo): $__FOR_START_939864365__=0;$__FOR_END_939864365__=$ayitem;for($i=$__FOR_START_939864365__;$i < $__FOR_END_939864365__;$i+=1){ ?><div class="index_tap total">
         <ul  class="inner" style="background-color:<?php echo ($itemArr[$i]['bgcolor']); ?>;
                                  border:<?php echo ($itemArr[$i]['bgsolid']); ?>">
             <li class="index_tap_item total_fans extra">
@@ -341,15 +341,15 @@ var  ROOT = "/wh";
                 var goodsData = <?php echo ($goodsData); ?>;
                 var categoryData = <?php echo ($categoryData); ?>;
                 var selectItemID = 0;
+                var wname = '<?php echo ($member_public["public_name"]); ?>';
+                var addGName = '未命名商品';
+                var upFileNameAry = [];
 
                 $.ajaxSetup({
                     cache: false
                 });
 
                 $(function(){
-
-
-
                     $('#expbtn').bind('click', function(event){
                         $('#tg').treegrid('expandAll');
                         event.preventDefault();
@@ -442,6 +442,7 @@ var  ROOT = "/wh";
                     Custombox.open({
                         target: tagerModal,
                         effect: 'fadein',
+                        overlayClose:false,
                         width:modalWidth
                     });
                 }
