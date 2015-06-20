@@ -146,6 +146,7 @@ var  ROOT = "/wh";
     <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/custombox.min.js"></script>
     <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/treegrid-dnd.js"></script>
     <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/jquery.idealforms.min.js"></script>
+    <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/jquery.idealforms.i18n.ch.js"></script>
     <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/Sortable.js"></script>
 
     <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/zyFile.js"></script>
@@ -164,7 +165,7 @@ var  ROOT = "/wh";
       </ul>
 </div><?php endif; ?>
 <?php if(!empty($normal_tips)): ?><p class="normal_tips"><b class="fa fa-info-circle"></b> <?php echo ($normal_tips); ?></p><?php endif; ?>
-            <?php if($need_datainfo): $__FOR_START_939864365__=0;$__FOR_END_939864365__=$ayitem;for($i=$__FOR_START_939864365__;$i < $__FOR_END_939864365__;$i+=1){ ?><div class="index_tap total">
+            <?php if($need_datainfo): $__FOR_START_1596045900__=0;$__FOR_END_1596045900__=$ayitem;for($i=$__FOR_START_1596045900__;$i < $__FOR_END_1596045900__;$i+=1){ ?><div class="index_tap total">
         <ul  class="inner" style="background-color:<?php echo ($itemArr[$i]['bgcolor']); ?>;
                                  border:<?php echo ($itemArr[$i]['bgsolid']); ?>">
             <li class="index_tap_item total_fans extra">
@@ -256,47 +257,43 @@ var  ROOT = "/wh";
 
             <!-- Modal ADDGOODS begin-->
             <div id="addgoods-modal" class="modal-demo" >
-                <button type="button" class="easyui-linkbutton" style="position: absolute; top: 5px;right: 5px;" onclick="Custombox.close();">
+                <button type="button" class="easyui-linkbutton" style="position: absolute; top: 5px;right: 5px;" onclick="closModal();">
                     <span>&times;</span><span class="sr-only">Close</span>
                 </button>
                 <h4 class="modal-title">添加商品</h4>
                 <div class="modal-text">
 
-                    <form class="idealforms" novalidate autocomplete="off" action="/" method="post">
+                    <form id="addGoodsforms" class="idealforms" novalidate autocomplete="off" action="/" method="post">
                         <div class="div-inline">
                             <!-- Text -->
                             <div class="field">
                                 <label class="main">商品名称:</label>
-                                <input name="username" type="text">
+                                <input id="gni" name="goodsname" type="text" data-idealforms-ajax="<?php echo ($verifyGN); ?>">
                                 <span class="error"></span>
                             </div>
 
                             <!-- Select -->
                             <div class="field">
                                 <label class="main">所属分类:</label>
-                                <select name="options">
-                                    <option value="default">&ndash; Select an option &ndash;</option>
-                                    <option value="1">One</option>
-                                    <option value="2">Two</option>
-                                </select>
+                                <input id="cc" name="cateOptions" class="easyui-combotree" style="width:290px;" data-options="height:35" onclick="onCateInputClick()">
                                 <span class="error"></span>
                             </div>
 
                             <div class="field">
                                 <label class="main">市场价:   ￥ </label>
-                                <input name="username" type="number">
+                                <input name="mprice" type="number" min="0" max="99999">
                                 <span class="error"></span>
                             </div>
 
                             <div class="field">
                                 <label class="main">销售价:   ￥ </label>
-                                <input name="username" type="number">
+                                <input name="sprice" type="number" min="0" max="999999">
                                 <span class="error"></span>
                             </div>
 
                             <div class="field">
                                 <label class="main">赠送积分:</label>
-                                <input name="username" type="number">
+                                <input name="Pawarded" type="number" min="0" max="999999">
                                 <span class="error"></span>
                             </div>
 
@@ -323,15 +320,11 @@ var  ROOT = "/wh";
                                 <span class="error"></span>
                             </div>
                         </div>
-
-
-
-
                     </form>
                     <h6 class="modal-title"></h6>
                     <div style="text-align: right; margin-top: 5px">
                         <a id="sumit-goods" href="#" class="easyui-linkbutton" plain="true" onclick="modalCilikHander(event)"><h4>确定</h4></a>
-                        <a  href="#" class="easyui-linkbutton" plain="true" onclick="Custombox.close()"><h4>取消</h4></a>
+                        <a  href="#" class="easyui-linkbutton" plain="true" onclick="closModal()"><h4>取消</h4></a>
                     </div>
                 </div>
             </div>
@@ -375,6 +368,32 @@ var  ROOT = "/wh";
                         var tid = targetRow.id;
                         moveItem(sid,tid,isCatalog);
                     }});
+
+                    $('#addGoodsforms').idealforms({
+                        rules: {
+                            'goodsname': 'required ajax',
+                            'mprice':'required number',
+                            'sprice':'required number',
+                            'Pawarded':'number'
+                        },
+                        errors: {
+                            'mprice':{
+                                required: '价格不可以为空，必须填写！',
+                                number: '价格必须是数字，以元为单位'
+                            },
+                            'sprice':{
+                                required: '价格不可以为空，必须填写！',
+                                number: '价格必须是数字，以元为单位'
+                            },
+                            'Pawarded':{
+                                number: '必须是数字，以积分点数为单位'
+                            },
+                            'goodsname': {
+                                ajax: '正在检查中...',
+                                ajaxError: '该名字已存在或无法使用！'
+                            }
+                        }
+                    });
 
                     $("#demoh").zyUpload({
                         width            :   "440px",                 // 宽度
@@ -421,6 +440,15 @@ var  ROOT = "/wh";
 
                 });
 
+                function onCateInputClick(event){
+                    $('#cc').combotree('showPanel');
+                }
+
+                function closModal(event){
+                    $('#cc').combotree('hidePanel');
+                    Custombox.close();
+                }
+
                 function openModal(event){
                     var tagerModal;
                     var modalWidth;
@@ -439,11 +467,21 @@ var  ROOT = "/wh";
                             break
                     }
 
+
+
                     Custombox.open({
                         target: tagerModal,
                         effect: 'fadein',
                         overlayClose:false,
-                        width:modalWidth
+                        width:modalWidth,
+                        open:function(){
+                            $('#cc').combotree({
+                                data: categoryData
+                            });
+                        },
+                        close:function(){
+
+                        }
                     });
                 }
 
@@ -480,6 +518,8 @@ var  ROOT = "/wh";
                         left: e.pageX,
                         top: e.pageY
                     });
+
+
 
 
                 }

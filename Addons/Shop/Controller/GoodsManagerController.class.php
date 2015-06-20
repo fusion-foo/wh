@@ -19,8 +19,12 @@ class GoodsManagerController extends BaseController{
         parent::_initialize ();
         $this->$token =  get_token ();
         $this->assign ('need_datainfo',$this -> $need_datainfo);
+
     }
 
+    public function verifyGoodsName(){
+        echo json_encode(false);
+    }
 
     public function getCategoryJData($id = 0){
         $testary = get_category_goods_ary($id);
@@ -126,9 +130,10 @@ class GoodsManagerController extends BaseController{
         //echo(json_encode($testary));
 
         $this->assign ('cate_data_url',addons_url ( 'Shop://GoodsManager/getCategoryJData' ));
+        $this->assign ('cate_json_url',addons_url ( 'Shop://GoodsManager/getCategoryJson' ));
         $this->assign ('goodsData',$cgJson);
         $this->assign ('categoryData',$cJson);
-
+        $this->assign ('verifyGN',addons_url ( 'Shop://GoodsManager/verifyGoodsName' ));
 
 
 
