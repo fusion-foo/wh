@@ -165,7 +165,7 @@ var  ROOT = "/wh";
       </ul>
 </div><?php endif; ?>
 <?php if(!empty($normal_tips)): ?><p class="normal_tips"><b class="fa fa-info-circle"></b> <?php echo ($normal_tips); ?></p><?php endif; ?>
-            <?php if($need_datainfo): $__FOR_START_1596045900__=0;$__FOR_END_1596045900__=$ayitem;for($i=$__FOR_START_1596045900__;$i < $__FOR_END_1596045900__;$i+=1){ ?><div class="index_tap total">
+            <?php if($need_datainfo): $__FOR_START_502133433__=0;$__FOR_END_502133433__=$ayitem;for($i=$__FOR_START_502133433__;$i < $__FOR_END_502133433__;$i+=1){ ?><div class="index_tap total">
         <ul  class="inner" style="background-color:<?php echo ($itemArr[$i]['bgcolor']); ?>;
                                  border:<?php echo ($itemArr[$i]['bgsolid']); ?>">
             <li class="index_tap_item total_fans extra">
@@ -274,8 +274,8 @@ var  ROOT = "/wh";
 
                             <!-- Select -->
                             <div class="field">
-                                <label class="main">所属分类:</label>
-                                <input id="cc" name="cateOptions" class="easyui-combotree" style="width:290px;" data-options="height:35" onclick="onCateInputClick()">
+                                <label class="main">所属类别:</label>
+                                <input id="cc" name="cateOptions" class="easyui-combotree" style="width:290px;" data-options="height:35">
                                 <span class="error"></span>
                             </div>
 
@@ -440,9 +440,7 @@ var  ROOT = "/wh";
 
                 });
 
-                function onCateInputClick(event){
-                    $('#cc').combotree('showPanel');
-                }
+
 
                 function closModal(event){
                     $('#cc').combotree('hidePanel');
@@ -475,9 +473,19 @@ var  ROOT = "/wh";
                         overlayClose:false,
                         width:modalWidth,
                         open:function(){
+                            var cateSelectData = getCateSelectData();
                             $('#cc').combotree({
-                                data: categoryData
+                                data:cateSelectData
                             });
+                            $('#addGoodsforms').click(function(event){
+                                if(event.target.className.indexOf('textbox') > -1){
+                                    var combp_z = $('.combo-p').css('z-index');
+                                    var modal_z =  $('.custombox-overlay.custombox-overlay-fadein.custombox-overlay-default').css('z-index');
+                                    $('.panel.combo-p').css('z-index',modal_z + 2);
+                                    var modal_z =  $('.custombox-modal-container').css('z-index');
+                                }
+                            });
+
                         },
                         close:function(){
 
@@ -512,16 +520,10 @@ var  ROOT = "/wh";
                         $('#mm').menu('enableItem', cutbn.target);
                     }
 
-
-
                     $('#mm').menu('show',{
                         left: e.pageX,
                         top: e.pageY
                     });
-
-
-
-
                 }
 
 
@@ -587,8 +589,17 @@ var  ROOT = "/wh";
                         $('#tg').treegrid('beginEdit', selectItemID);
                     }
                 }
+
                 function save(){
 
+                }
+
+
+                function getCateSelectData(){
+                    var copyCategoryData = categoryData.slice();
+                    var insertOBJ = {id:'none',text:'----- 无 (不属于任何类别) -----'};
+                    copyCategoryData.splice(0, 0, insertOBJ);
+                    return copyCategoryData;
                 }
 
                 function clearUPCata(sid){

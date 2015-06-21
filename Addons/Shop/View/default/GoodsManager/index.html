@@ -121,8 +121,8 @@
 
                             <!-- Select -->
                             <div class="field">
-                                <label class="main">所属分类:</label>
-                                <input id="cc" name="cateOptions" class="easyui-combotree" style="width:290px;" data-options="height:35" onclick="onCateInputClick()">
+                                <label class="main">所属类别:</label>
+                                <input id="cc" name="cateOptions" class="easyui-combotree" style="width:290px;" data-options="height:35">
                                 <span class="error"></span>
                             </div>
 
@@ -287,9 +287,7 @@
 
                 });
 
-                function onCateInputClick(event){
-                    $('#cc').combotree('showPanel');
-                }
+
 
                 function closModal(event){
                     $('#cc').combotree('hidePanel');
@@ -322,9 +320,19 @@
                         overlayClose:false,
                         width:modalWidth,
                         open:function(){
+                            var cateSelectData = getCateSelectData();
                             $('#cc').combotree({
-                                data: categoryData
+                                data:cateSelectData
                             });
+                            $('#addGoodsforms').click(function(event){
+                                if(event.target.className.indexOf('textbox') > -1){
+                                    var combp_z = $('.combo-p').css('z-index');
+                                    var modal_z =  $('.custombox-overlay.custombox-overlay-fadein.custombox-overlay-default').css('z-index');
+                                    $('.panel.combo-p').css('z-index',modal_z + 2);
+                                    var modal_z =  $('.custombox-modal-container').css('z-index');
+                                }
+                            });
+
                         },
                         close:function(){
 
@@ -359,16 +367,10 @@
                         $('#mm').menu('enableItem', cutbn.target);
                     }
 
-
-
                     $('#mm').menu('show',{
                         left: e.pageX,
                         top: e.pageY
                     });
-
-
-
-
                 }
 
 
@@ -434,8 +436,17 @@
                         $('#tg').treegrid('beginEdit', selectItemID);
                     }
                 }
+
                 function save(){
 
+                }
+
+
+                function getCateSelectData(){
+                    var copyCategoryData = categoryData.slice();
+                    var insertOBJ = {id:'none',text:'----- 无 (不属于任何类别) -----'};
+                    copyCategoryData.splice(0, 0, insertOBJ);
+                    return copyCategoryData;
                 }
 
                 function clearUPCata(sid){
