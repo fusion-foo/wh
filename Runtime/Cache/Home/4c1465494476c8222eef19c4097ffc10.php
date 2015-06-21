@@ -165,7 +165,7 @@ var  ROOT = "/wh";
       </ul>
 </div><?php endif; ?>
 <?php if(!empty($normal_tips)): ?><p class="normal_tips"><b class="fa fa-info-circle"></b> <?php echo ($normal_tips); ?></p><?php endif; ?>
-            <?php if($need_datainfo): $__FOR_START_502133433__=0;$__FOR_END_502133433__=$ayitem;for($i=$__FOR_START_502133433__;$i < $__FOR_END_502133433__;$i+=1){ ?><div class="index_tap total">
+            <?php if($need_datainfo): $__FOR_START_147104484__=0;$__FOR_END_147104484__=$ayitem;for($i=$__FOR_START_147104484__;$i < $__FOR_END_147104484__;$i+=1){ ?><div class="index_tap total">
         <ul  class="inner" style="background-color:<?php echo ($itemArr[$i]['bgcolor']); ?>;
                                  border:<?php echo ($itemArr[$i]['bgsolid']); ?>">
             <li class="index_tap_item total_fans extra">
@@ -238,18 +238,23 @@ var  ROOT = "/wh";
 
             <!-- Modal ADDCATE begin-->
             <div id="addcate-modal" class="modal-demo">
-                <button type="button" class="easyui-linkbutton" style="position: absolute; top: 5px;right: 5px;" onclick="Custombox.close();">
+                <button type="button" class="easyui-linkbutton" style="position: absolute; top: 5px;right: 5px;" onclick="closModal();">
                     <span>&times;</span><span class="sr-only">Close</span>
                 </button>
                 <h4 class="modal-title">添加类别</h4>
                 <div class="modal-text">
-                    <div id="add-cate-div" >
-                        <input id="add-cate-input"  type="text"  value="请输入类别名称..." style="width:95%; height:10px; color:#a4a4a4; font-size:14px; height:20px;background-color:#D6D6FF" onclick="modalCilikHander(event)"/>
-                        <div style="text-align: right">
-                            <a id="sumit-cate" href="#" class="easyui-linkbutton" plain="true" onclick="modalCilikHander(event)">确定</a>
-                            <a  href="#" class="easyui-linkbutton" plain="true" onclick="Custombox.close()">取消</a>
-                        </div>
-                    </div>
+                    <form id="addCateforms" class="idealforms" novalidate autocomplete="off" action="/" method="post">
+                            <div id="cate-name-div" class="field">
+                                <label class="main">类别名称:</label>
+                                <input  id="add-cate-input"  name="catename" x type="text" data-idealforms-ajax="<?php echo ($verifyGN); ?>&kind=cate" style="width:270px">
+                                <span class="error"></span>
+                            </div>
+
+                            <div style="text-align: right; padding-top: 10px">
+                                <a id="sumit-cate" href="#" class="easyui-linkbutton" plain="true" onclick="modalCilikHander(event)">确定</a>
+                                <a  href="#" class="easyui-linkbutton" plain="true" onclick="closModal()">取消</a>
+                            </div>
+                    </form>
                 </div>
             </div>
             <!-- Modal ADDCATE end-->
@@ -266,18 +271,13 @@ var  ROOT = "/wh";
                     <form id="addGoodsforms" class="idealforms" novalidate autocomplete="off" action="/" method="post">
                         <div class="div-inline">
                             <!-- Text -->
-                            <div class="field">
+                            <div id="goods-name" class="field">
                                 <label class="main">商品名称:</label>
-                                <input id="gni" name="goodsname" type="text" data-idealforms-ajax="<?php echo ($verifyGN); ?>">
+                                <input id="gni" name="goodsname" type="text" data-idealforms-ajax="<?php echo ($verifyGN); ?>&kind=goods">
                                 <span class="error"></span>
                             </div>
 
-                            <!-- Select -->
-                            <div class="field">
-                                <label class="main">所属类别:</label>
-                                <input id="cc" name="cateOptions" class="easyui-combotree" style="width:290px;" data-options="height:35">
-                                <span class="error"></span>
-                            </div>
+
 
                             <div class="field">
                                 <label class="main">市场价:   ￥ </label>
@@ -328,12 +328,19 @@ var  ROOT = "/wh";
                     </div>
                 </div>
             </div>
+
+            <!-- Select -->
+            <div id="cateSelectDiv" class="field" style="display:none">
+                <label class="main">所属类别:</label>
+                <input id="cc" name="cateOptions" class="easyui-combotree" style="width:290px;" data-options="height:35">
+                <span class="error"></span>
+            </div>
             <!-- Modal ADDGOODS end-->
 
             <script type="text/javascript">
                 var goodsData = <?php echo ($goodsData); ?>;
                 var categoryData = <?php echo ($categoryData); ?>;
-                var selectItemID = 0;
+                var selectTreeItemID = 0;
                 var wname = '<?php echo ($member_public["public_name"]); ?>';
                 var addGName = '未命名商品';
                 var upFileNameAry = [];
@@ -359,7 +366,7 @@ var  ROOT = "/wh";
 
                     $('#tg').treegrid({ onClickRow: function (index, row) {
                         var rows = $('#tg').treegrid('getSelected');
-                        if (rows)selectItemID = rows.id;
+                        if (rows)selectTreeItemID = rows.id;
                     }});
 
                     $('#tg').treegrid({ onDrop: function (targetRow,sourceRow,point) {
@@ -368,6 +375,18 @@ var  ROOT = "/wh";
                         var tid = targetRow.id;
                         moveItem(sid,tid,isCatalog);
                     }});
+
+                    $('#addCateforms').idealforms({
+                        rules: {
+                            'catename':'required ajax'
+                        },
+                        errors:{
+                            'catename': {
+                                ajax: '正在检查中...',
+                                ajaxError: '该名字已存在或无法使用！'
+                            }
+                        }
+                    });
 
                     $('#addGoodsforms').idealforms({
                         rules: {
@@ -450,18 +469,22 @@ var  ROOT = "/wh";
                 function openModal(event){
                     var tagerModal;
                     var modalWidth;
+                    var openKind = event.currentTarget.id;
                     switch(event.currentTarget.id){
                         case "addcbtn":
                             tagerModal = '#addcate-modal';
-                            modalWidth = 300;
+                            modalWidth = 350;
                             var addCateInput =  $('#add-cate-input');
                             addCateInput.val(addCateInput[0].defaultValue);
-
+                            $('#cateSelectDiv').insertAfter('#cate-name-div');
+                            $('#cateSelectDiv').css('display','block');
                             break;
 
                         case "adddbtn":
                             tagerModal = '#addgoods-modal';
                             modalWidth = 940;
+                            $('#cateSelectDiv').insertAfter('#goods-name');
+                            $('#cateSelectDiv').css('display','block');
                             break
                     }
 
@@ -474,21 +497,34 @@ var  ROOT = "/wh";
                         width:modalWidth,
                         open:function(){
                             var cateSelectData = getCateSelectData();
-                            $('#cc').combotree({
-                                data:cateSelectData
-                            });
-                            $('#addGoodsforms').click(function(event){
-                                if(event.target.className.indexOf('textbox') > -1){
-                                    var combp_z = $('.combo-p').css('z-index');
-                                    var modal_z =  $('.custombox-overlay.custombox-overlay-fadein.custombox-overlay-default').css('z-index');
-                                    $('.panel.combo-p').css('z-index',modal_z + 2);
-                                    var modal_z =  $('.custombox-modal-container').css('z-index');
-                                }
-                            });
+                            $('#cc').combotree({data:cateSelectData});
 
+                            setComboPanleOnTop();
+                            setSelectValue();
+
+                            function setComboPanleOnTop(){
+                                var selectorStr  = (openKind === 'addcbtn' ? '#addCateforms':'#addGoodsforms');
+                                $(selectorStr).click(function(event){
+                                    if(event.target.className.indexOf('textbox') > -1){
+                                        var modal_z =  $('.custombox-overlay.custombox-overlay-fadein.custombox-overlay-default').css('z-index');
+                                        $('.panel.combo-p').css('z-index',modal_z + 2);
+                                    }
+                                });
+                            }
+
+                            function setSelectValue(){
+                                var pid = getRealCatePid(selectTreeItemID);
+                                var cateItem = getCateItemByID(pid,categoryData);
+                                if(cateItem){
+                                    $('#cc').combotree('setValue',cateItem.name);
+                                }else{
+                                    $('#cc').combotree('setValue',cateSelectData[0].text);
+                                }
+                            }
                         },
                         close:function(){
-
+                            $('#cateSelectDiv').appendTo('#contents');
+                            $('#cateSelectDiv').css('display','none');
                         }
                     });
                 }
@@ -501,11 +537,12 @@ var  ROOT = "/wh";
 
                              case "sumit-cate":
                                  var name = $('#add-cate-input').val();
-                                 addCategory(name,selectItemID);
+                                 var pid = getRealCatePid(selectTreeItemID);
+                                 addCategory(name,pid);
                                  break;
 
                              case "sumit-good":
-                                 addGoods(selectItemID);
+                                 addGoods(selectTreeItemID);
                                  break;
                          }
                 }
@@ -529,7 +566,7 @@ var  ROOT = "/wh";
 
                 function checkSelect(){
                     var isSelect = false;
-                    if (selectItemID == undefined){
+                    if (selectTreeItemID == undefined){
                         updateAlert('请选中分类条目后再操作...！','alert-error',2000);
                         isSelect = false;
                     }else{
@@ -540,7 +577,7 @@ var  ROOT = "/wh";
 
                 function addCategory(name,pid){
                     var name = name.trim();
-                    var pid = getRealPid(pid);
+                    //var pid = getRealPid(pid);
                     var ajURL = '<?php echo addons_url ( 'Shop://GoodsManager/addCateNode');?>';
                             ajURL =  ajURL.replace('.html','/') + 'name/' + name + '/pid/' + pid ;
                     var resultData = $.ajax({url:ajURL,async:false});
@@ -555,17 +592,50 @@ var  ROOT = "/wh";
                         updateAlert('无法添加该类别' + resultData.responseJSON.data,'alert-error',2000);
                     }
 
-                    function getRealPid(pid){
-                        var returnPid = pid;
-                        var item =  $('#tg').treegrid('getSelected', pid);
-                        if(item === null){
-                            returnPid = 0;
-                        }else{
-                            item.isCatalog ? returnPid = pid :returnPid = item._parentId;
+
+                }
+
+                function getRealCatePid(pid){
+                    var returnPid = pid;
+                    var item = getCateItemByID(pid,goodsData);//$('#tg').treegrid('getSelected');
+                    if(!item || item === null){
+                        returnPid = 0;
+                    }else{
+                        item.isCatalog ? returnPid = pid :returnPid = item._parentId;
+                    }
+                    return returnPid;
+                }
+
+                function getCateItemByID(id,checkData){
+                    var cItem;
+                    checkItem(checkData);
+                    return cItem;
+
+                    function checkItem(arr){
+                        var item;
+                        for(x in arr){
+                            item = arr[x];
+                            if(item.isCatalog){
+                                if(item.id == id){
+                                    cItem = arr[x];
+                                    return;
+                                    break;
+                                }else{
+                                    if(item.children){
+                                        checkItem(item.children);
+                                    }else{
+                                        continue;
+                                    }
+                                }
+                            }else{
+                                if(item.id == id) {
+                                    cItem = arr[x];
+                                    return;
+                                    break;
+                                }
+                            }
                         }
-
-
-                        return returnPid;
+                        return item;
                     }
                 }
 
@@ -579,14 +649,14 @@ var  ROOT = "/wh";
 
 
                 function edit(){
-                    if (selectItemID != undefined){
-                        $('#tg').treegrid('select', selectItemID);
+                    if (selectTreeItemID != undefined){
+                        $('#tg').treegrid('select', selectTreeItemID);
                         return;
                     }
                     var row = $('#tg').treegrid('getSelected');
                     if (row){
-                        selectItemID = row.id
-                        $('#tg').treegrid('beginEdit', selectItemID);
+                        selectTreeItemID = row.id
+                        $('#tg').treegrid('beginEdit', selectTreeItemID);
                     }
                 }
 
@@ -641,44 +711,17 @@ var  ROOT = "/wh";
                     function getGrandpa(node){
                              var grandpaItem;
                              var pid = node.isCatalog ? node.pid : node._parentId;
-                             var fater = getCateItemByID(pid);
+                             var fater = getCateItemByID(pid,goodsData);
 
                              if(fater) {
                                  var fpid = fater.isCatalog ? fater.pid : fater._parentId;
-                                 grandpaItem = getCateItemByID(fpid);
+                                 grandpaItem = getCateItemByID(fpid,goodsData);
                              }
                              return grandpaItem;
                     }
                 }
 
-                function getCateItemByID(id){
-                         var cItem;
-                         checkItem(goodsData);
-                         return cItem;
 
-                         function checkItem(arr){
-
-                             for(x in arr){
-                                 var item = arr[x];
-                                 if(item.isCatalog){
-                                     if(item.id == id){
-                                         cItem = arr[x];
-                                         return;
-                                         break;
-                                     }else{
-                                         checkItem(item.children);
-                                     }
-                                 }else{
-                                     if(item.id == id) {
-                                         cItem = arr[x];
-                                         return;
-                                         break;
-                                     }
-                                 }
-                             }
-                             return item;
-                         }
-                }
 
                 function expanItem(){
                     var node = $('#tg').treegrid('getSelected');

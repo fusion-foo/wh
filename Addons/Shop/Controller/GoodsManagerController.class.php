@@ -22,8 +22,30 @@ class GoodsManagerController extends BaseController{
 
     }
 
-    public function verifyGoodsName(){
-        echo json_encode(false);
+    public function verifyName(){
+        $map ['token'] = get_token ();
+        $kind = I('get.kind');
+        switch($kind){
+            case 'cate':
+                $map ['name'] = I('post.catename');
+                $cateModel = M("shop_category");
+                $hasOne = $cateModel->where($map)->select();
+                break;
+
+            case 'goods':
+                $map ['name'] = I('post.goodsname');
+                $cateModel = M("shop_goods");
+                $hasOne = $cateModel->where($map)->select();
+                break;
+        }
+
+        if($hasOne){
+            echo json_encode(false);
+        }else{
+            echo json_encode(true);
+        }
+
+
     }
 
     public function getCategoryJData($id = 0){
@@ -133,7 +155,7 @@ class GoodsManagerController extends BaseController{
         $this->assign ('cate_json_url',addons_url ( 'Shop://GoodsManager/getCategoryJson' ));
         $this->assign ('goodsData',$cgJson);
         $this->assign ('categoryData',$cJson);
-        $this->assign ('verifyGN',addons_url ( 'Shop://GoodsManager/verifyGoodsName' ));
+        $this->assign ('verifyGN',addons_url ( 'Shop://GoodsManager/verifyName' ));
 
 
 
