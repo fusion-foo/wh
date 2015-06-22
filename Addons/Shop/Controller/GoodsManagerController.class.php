@@ -93,7 +93,8 @@ class GoodsManagerController extends BaseController{
 
            if($isAdded){
                $data['id'] = $isAdded;
-               $data['rootJson'] = get_category_goods_json();
+               $data['CGJson'] = get_category_goods_json();
+               $data['CJson'] = get_category_json();
                $resulData['info'] = 'success';
                $resulData['data'] = $data;
                $this->ajaxReturn($resulData);
@@ -114,7 +115,8 @@ class GoodsManagerController extends BaseController{
            $isSaveGoods = M('shop_goods')->where($saveGoodsMap)->data($data)->save();
            $isDelCata = M('shop_category')->where($delCataMpa)->delete();
 
-           $data['rootJson'] = get_category_goods_json();
+           $data['CGJson'] = get_category_goods_json();
+           $data['CJson'] = get_category_json();
            $resulData['info'] = ($isDelCata) ? 'success':'error';
            $resulData['data'] = $data;
            $this->ajaxReturn($resulData);
@@ -135,7 +137,8 @@ class GoodsManagerController extends BaseController{
                $data['pid'] = $targetCID;
                $isSave = M('shop_category')->where($map)->data($data)->save();
            }
-          $data['rootJson'] = get_category_goods_json();
+          $data['CGJson'] = get_category_goods_json();
+          $data['CJson'] = get_category_json();
           $resulData['info'] = $isSave ? 'success':'error';
           $resulData['data'] = $data;
           $this->ajaxReturn($resulData);

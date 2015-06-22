@@ -1,7 +1,7 @@
  /* www.jq22.com */
 (function($,undefined){
-	$.fn.zyUpload = function(options,param){
-		var otherArgs = Array.prototype.slice.call(arguments, 1);
+    $.fn.zyUpload = function(options,param){
+        var otherArgs = Array.prototype.slice.call(arguments, 1);
 		if (typeof options == 'string') {
 			var fn = this[0][options];
 			if($.isFunction(fn)){
@@ -335,7 +335,7 @@
 					onSuccess: function(file, response) {
 						$("#uploadProgress_" + file.index).hide();
 						$("#uploadSuccess_" + file.index).show();
-						$("#uploadInf").append("<p>上传成功!</p>");
+						//$("#uploadInf").append("<p>上传成功!</p>");
 						// 根据配置参数确定隐不隐藏上传成功的文件
 						if(para.finishDel){
 							// 移除效果
@@ -365,6 +365,18 @@
 				ZYFILE = $.extend(ZYFILE, params);
 				ZYFILE.init();
 			};
+
+
+            /**
+             * 功能：重置
+             * 参数: 无
+             * 返回: 无
+             */
+            this.reset = function(){
+
+                ZYFILE = $.extend(ZYFILE, params);
+                ZYFILE.init();
+            }
 			
 			/**
 			 * 功能：绑定事件

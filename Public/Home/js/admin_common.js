@@ -158,6 +158,8 @@
     }
 
     window.updateAlert = function (text,c,dely) {
+        var modal_z =  $('.custombox-overlay.custombox-overlay-fadein.custombox-overlay-default').css('z-index');
+        top_alert.css('z-index',modal_z + 5);
 		text = text||'default';
 		c = c||false;
 		if ( text!='default' ) {

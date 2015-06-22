@@ -165,7 +165,7 @@ var  ROOT = "/wh";
       </ul>
 </div><?php endif; ?>
 <?php if(!empty($normal_tips)): ?><p class="normal_tips"><b class="fa fa-info-circle"></b> <?php echo ($normal_tips); ?></p><?php endif; ?>
-            <?php if($need_datainfo): $__FOR_START_147104484__=0;$__FOR_END_147104484__=$ayitem;for($i=$__FOR_START_147104484__;$i < $__FOR_END_147104484__;$i+=1){ ?><div class="index_tap total">
+            <?php if($need_datainfo): $__FOR_START_357315440__=0;$__FOR_END_357315440__=$ayitem;for($i=$__FOR_START_357315440__;$i < $__FOR_END_357315440__;$i+=1){ ?><div class="index_tap total">
         <ul  class="inner" style="background-color:<?php echo ($itemArr[$i]['bgcolor']); ?>;
                                  border:<?php echo ($itemArr[$i]['bgsolid']); ?>">
             <li class="index_tap_item total_fans extra">
@@ -246,7 +246,7 @@ var  ROOT = "/wh";
                     <form id="addCateforms" class="idealforms" novalidate autocomplete="off" action="/" method="post">
                             <div id="cate-name-div" class="field">
                                 <label class="main">类别名称:</label>
-                                <input  id="add-cate-input"  name="catename" x type="text" data-idealforms-ajax="<?php echo ($verifyGN); ?>&kind=cate" style="width:270px">
+                                <input  id="add-cate-input" name="catename" x type="text" data-idealforms-ajax="<?php echo ($verifyGN); ?>&kind=cate" style="width:270px">
                                 <span class="error"></span>
                             </div>
 
@@ -277,8 +277,6 @@ var  ROOT = "/wh";
                                 <span class="error"></span>
                             </div>
 
-
-
                             <div class="field">
                                 <label class="main">市场价:   ￥ </label>
                                 <input name="mprice" type="number" min="0" max="99999">
@@ -301,7 +299,7 @@ var  ROOT = "/wh";
                             <!-- Textarea -->
                             <div class="field">
                                 <label class="main">商品简介:</label>
-                                <textarea name="comments" cols="30" rows="10" style="width: 290px"></textarea>
+                                <textarea id="goods-brief" name="brief" cols="30" rows="10" style="width: 290px"></textarea>
                                 <span class="error"></span>
                             </div>
 
@@ -344,6 +342,7 @@ var  ROOT = "/wh";
                 var wname = '<?php echo ($member_public["public_name"]); ?>';
                 var addGName = '未命名商品';
                 var upFileNameAry = [];
+                var currModalFroms;
 
                 $.ajaxSetup({
                     cache: false
@@ -364,10 +363,12 @@ var  ROOT = "/wh";
                         data: goodsData
                     });
 
-                    $('#tg').treegrid({ onClickRow: function (index, row) {
+                    $('#tg').treegrid({ onSelect: function (index, row) {
                         var rows = $('#tg').treegrid('getSelected');
                         if (rows)selectTreeItemID = rows.id;
                     }});
+
+
 
                     $('#tg').treegrid({ onDrop: function (targetRow,sourceRow,point) {
                         var isCatalog = ('isCatalog' in sourceRow) ? sourceRow.isCatalog : false;
@@ -414,6 +415,13 @@ var  ROOT = "/wh";
                         }
                     });
 
+
+
+
+                });
+
+                function initZyUpload(){
+                    $("#demoh").empty();
                     $("#demoh").zyUpload({
                         width            :   "440px",                 // 宽度
                         height           :   "400px",                 // 宽度
@@ -455,11 +463,7 @@ var  ROOT = "/wh";
                             console.info(responseInfo);
                         }
                     });
-
-
-                });
-
-
+                }
 
                 function closModal(event){
                     $('#cc').combotree('hidePanel');
@@ -470,6 +474,9 @@ var  ROOT = "/wh";
                     var tagerModal;
                     var modalWidth;
                     var openKind = event.currentTarget.id;
+                    var selectorStr  = (openKind === 'addcbtn' ? '#addCateforms':'#addGoodsforms');
+                    currModalFroms = $(selectorStr);
+                    resetModalFroms();
                     switch(event.currentTarget.id){
                         case "addcbtn":
                             tagerModal = '#addcate-modal';
@@ -481,8 +488,9 @@ var  ROOT = "/wh";
                             break;
 
                         case "adddbtn":
+                            initZyUpload();
                             tagerModal = '#addgoods-modal';
-                            modalWidth = 940;
+                            modalWidth = 800;
                             $('#cateSelectDiv').insertAfter('#goods-name');
                             $('#cateSelectDiv').css('display','block');
                             break
@@ -496,6 +504,7 @@ var  ROOT = "/wh";
                         overlayClose:false,
                         width:modalWidth,
                         open:function(){
+
                             var cateSelectData = getCateSelectData();
                             $('#cc').combotree({data:cateSelectData});
 
@@ -503,8 +512,7 @@ var  ROOT = "/wh";
                             setSelectValue();
 
                             function setComboPanleOnTop(){
-                                var selectorStr  = (openKind === 'addcbtn' ? '#addCateforms':'#addGoodsforms');
-                                $(selectorStr).click(function(event){
+                                currModalFroms.click(function(event){
                                     if(event.target.className.indexOf('textbox') > -1){
                                         var modal_z =  $('.custombox-overlay.custombox-overlay-fadein.custombox-overlay-default').css('z-index');
                                         $('.panel.combo-p').css('z-index',modal_z + 2);
@@ -525,6 +533,7 @@ var  ROOT = "/wh";
                         close:function(){
                             $('#cateSelectDiv').appendTo('#contents');
                             $('#cateSelectDiv').css('display','none');
+                            currModalFroms = null;
                         }
                     });
                 }
@@ -536,15 +545,41 @@ var  ROOT = "/wh";
                                    break;
 
                              case "sumit-cate":
+                                 if(! verifySubmit('#addCateforms'))return;
+                                 selectTreeItemID = $('#cc').combotree('getValue');
                                  var name = $('#add-cate-input').val();
                                  var pid = getRealCatePid(selectTreeItemID);
                                  addCategory(name,pid);
                                  break;
 
-                             case "sumit-good":
+                             case "sumit-goods":
+                                 if(! verifySubmit('#addGoodsforms'))return;
                                  addGoods(selectTreeItemID);
                                  break;
                          }
+                }
+
+                function verifySubmit(typeOfForms){
+                       var ret;
+                       var erros = $(typeOfForms).idealforms('get:invalid');
+                       if(erros.length > 0){
+                           updateAlert('填写不完整或字段域无效，重新填写！','alert-error',4000);
+                           ret = false;
+                       }else{
+                            ret = true;
+                       }
+                       return ret;
+                }
+
+                function resetModalFroms(){
+                    if(!currModalFroms)return;
+                    currModalFroms.idealforms('reset');
+                    if(currModalFroms.selector == '#addGoodsforms'){
+                        var fdsa = $('#goods-brief');
+                        $('#goods-brief').val('');
+                    }else{
+
+                    }
                 }
 
                 function onContextMenu(e,row){
@@ -584,16 +619,23 @@ var  ROOT = "/wh";
                     if(resultData.responseJSON.info == 'success'){
                         updateAlert('添加成功！','alert-success',2000);
                         Custombox.close()
-                        goodsData = JSON.parse(resultData.responseJSON.data.rootJson);
+                        goodsData = JSON.parse(resultData.responseJSON.data.CGJson);
+                        categoryData = JSON.parse(resultData.responseJSON.data.CJson);
                         $('#tg').treegrid({data: goodsData});
                         $('#tg').treegrid('select', resultData.responseJSON.data.id);
 
                     }else{
                         updateAlert('无法添加该类别' + resultData.responseJSON.data,'alert-error',2000);
                     }
+                }
 
+
+                function addGoods(pid){
 
                 }
+
+
+
 
                 function getRealCatePid(pid){
                     var returnPid = pid;
@@ -639,9 +681,7 @@ var  ROOT = "/wh";
                     }
                 }
 
-                function addGoods(pid){
 
-                }
 
                 function removeItem(){
                     if(!checkSelect())return;
@@ -678,8 +718,8 @@ var  ROOT = "/wh";
 
                     var resultData = $.ajax({url:ajURL,async:false});
                     resultData.responseJSON.info == 'success' ? updateAlert('取消类别成功！','alert-success',2000):updateAlert('取消类别失败！','alert-error',2000);
-                    goodsData = JSON.parse(resultData.responseJSON.data.rootJson);
-
+                    goodsData = JSON.parse(resultData.responseJSON.data.CGJson);
+                    categoryData = JSON.parse(resultData.responseJSON.data.CJson);
                     $('#tg').treegrid({data: goodsData });
                 }
 
@@ -688,8 +728,8 @@ var  ROOT = "/wh";
                             ajURL =  ajURL.replace('.html','/') + 'targetCID/' + tid + '/sourceCID/' + sid + '/isCatalog/' + isCatalog;
                     var resultData = $.ajax({url:ajURL,async:false});
                     resultData.responseJSON.info == 'success' ? updateAlert('移动成功！','alert-success',2000):updateAlert('移动失败！','alert-error',2000);
-                    goodsData = JSON.parse(resultData.responseJSON.data.rootJson);
-
+                    goodsData = JSON.parse(resultData.responseJSON.data.CGJson);
+                    categoryData = JSON.parse(resultData.responseJSON.data.CJson);
                     $('#tg').treegrid({data: goodsData });
                 }
 

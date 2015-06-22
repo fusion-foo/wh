@@ -236,7 +236,7 @@ var ZYFILE = {
 					self.funUploadFiles(e); 
 				}, false);	
 			}
-		}
+        }
 };
 
 
