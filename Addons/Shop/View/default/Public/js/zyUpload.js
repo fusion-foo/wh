@@ -26,6 +26,7 @@
 					del              : true,  						// 是否可以删除文件
 					finishDel        : false,  						// 是否在上传文件完成后删除预览
                     get7TokenURL     : "",
+
 					/* 提供给外部的接口方法 */
 					onSelect         : function(selectFiles, files){},// 选择文件的回调方法  selectFile:当前选中的文件  allFiles:还没上传的全部文件
 					onDelete		 : function(file, files){},     // 删除一个文件的回调方法 file:当前删除的文件  files:删除之后的文件
@@ -65,6 +66,7 @@
 	            	html += '				</div>';
 					html += '				<span id="fileDragArea" class="upload_drag_area">或者将图片文件拖到此处</span>';
 					html += '			</div>';
+                    html += '           <div id="preview" class="upload_preview"></div>';
 		            html += '			<div class="status_bar">';
 		            html += '				<div id="status_info" class="info">选中0图片张文件，共0B。</div>';
 		            html += '				<div class="btns">';
@@ -72,12 +74,11 @@
 		            html += '					<div class="upload_btn">开始上传</div>';
 		            html += '				</div>';
 		            html += '			</div>';
-					html += '			<div id="preview" class="upload_preview"></div>';
 					html += '		</div>';
 					html += '		<div class="upload_submit">';
 					html += '			<button type="button" id="fileSubmit" class="upload_submit_btn">确认上传文件</button>';
 					html += '		</div>';
-					html += '		<div id="uploadInf" class="upload_inf"></div>';
+					//html += '		<div id="uploadInf" class="upload_inf"></div>';
 					html += '	</div>';
                     html += '</form>';
 				}else{
@@ -85,30 +86,31 @@
 					
 					// 创建不带有拖动的html
 					html += '<form id="uploadForm" action="'+para.url+'" method="post" enctype="multipart/form-data">';
-					html += '	<div class="upload_box">';
+                    html += '	<div class="upload_box">';
 					html += '		<div class="upload_main single_main">';
 		            html += '			<div class="status_bar">';
 		            html += '				<div id="status_info" class="info">选中0张文件，共0B。</div>';
 		            html += '				<div class="btns">';
 		            html += '					<input id="fileImage" type="file" size="30" accept="image/*" name="fileselect[]" '+multiple+'>';
-		            html += '					<div class="webuploader_pick">选择文件</div>';
+                    html += ' <div class="webuploader_pick">添加文件</div>';
 		            html += '					<div class="upload_btn">开始上传</div>';
 		            html += '				</div>';
 		            html += '			</div>';
-		            html += '			<div id="preview" class="upload_preview">';
-				    html += '				<div class="add_upload">';
-				    html += '					<a style="height:'+para.itemHeight+';width:'+para.itemWidth+';" title="点击添加文件" id="rapidAddImg" class="add_imgBox" href="javascript:void(0)">';
-				    html += '						<div class="uploadImg" style="width:'+imgWidth+'px">';
-				    html += '							<img class="upload_image" src="control/images/add_img.png" style="width:expression(this.width > '+imgWidth+' ? '+imgWidth+'px : this.width)" />';
-				    html += '						</div>';
-				    html += '					</a>';
-				    html += '				</div>';
-					html += '			</div>';
+                    html += '			<div id="preview" class="upload_preview">';
+                    html += '				<div class="add_upload">';
+                    html += '					<a style="height:'+para.itemHeight+';width:'+para.itemWidth+';" title="点击添加文件" id="rapidAddImg" class="add_imgBox" href="javascript:void(0)">';
+                    html += '						<div class="uploadImg" style="width:'+imgWidth+'px">';
+                    html += '							<img class="upload_image"  style="width:expression(this.width > '+imgWidth+' ? '+imgWidth+'px : this.width)" />';
+                    html += '	                         <span>点击添加文件</span>';
+                    html += '						</div>';
+                    html += '					</a>';
+                    html += '				</div>';
+                    html += '			</div>';
 					html += '		</div>';
 					html += '		<div class="upload_submit">';
 					html += '			<button type="button" id="fileSubmit" class="upload_submit_btn">确认上传文件</button>';
 					html += '		</div>';
-					html += '		<div id="uploadInf" class="upload_inf"></div>';
+					//html += '		<div id="uploadInf" class="upload_inf"></div>';
 					html += '	</div>';
 					html += '</form>';
 				}
@@ -118,6 +120,8 @@
 	            // 初始化html之后绑定按钮的点击事件
 	            this.addEvent();
 			};
+
+            this.isUploding = false,
 			
 			/**
 			 * 功能：显示统计信息和绑定继续上传和上传按钮的点击事件
@@ -331,8 +335,14 @@
 							eleProgress.show();
 						}
 						eleProgress.css("width",percent);
+                        self.isUploding = true;
+                        var xIcon =  $("#uploadList_" + file.index).find('span:first');
+                        xIcon.css('display','none');
 					},
 					onSuccess: function(file, response) {
+                        self.isUploding = false;
+                        var xIcon =  $("#uploadList_" + file.index).find('span:first');
+                        xIcon.css('display','inline');
 						$("#uploadProgress_" + file.index).hide();
 						$("#uploadSuccess_" + file.index).show();
 						//$("#uploadInf").append("<p>上传成功!</p>");
@@ -345,8 +355,10 @@
 						}
 					},
 					onFailure: function(file) {
+                        var xIcon =  $("#uploadList_" + file.index).find('span:first');
+                        xIcon.css('display','inline');
 						$("#uploadProgress_" + file.index).hide();
-						$("#uploadSuccess_" + file.index).show();
+						$("#uploadFailure_" + file.index).show();
 						$("#uploadInf").append("<p>文件" + file.name + "上传失败！</p>");	
 						//$("#uploadImage_" + file.index).css("opacity", 0.2);
 					},
@@ -388,22 +400,34 @@
 				if($(".filePicker").length > 0){
 					// 绑定选择事件
 					$(".filePicker").bind("click", function(e){
+                        if(ZYFILE.isUploding){
+                            updateAlert("请稍后，正在上传文件...",'alert-error',5000);
+                            return;
+                        }
 		            	$("#fileImage").click();
 		            });
 				}
 	            
 				// 绑定继续添加点击事件
 				$(".webuploader_pick").bind("click", function(e){
+                    if(ZYFILE.isUploding){
+                        updateAlert("请稍后，正在上传文件...",'alert-error',5000);
+                        return;
+                    }
 	            	$("#fileImage").click();
 	            });
 				
 				// 绑定上传点击事件
 				$(".upload_btn").bind("click", function(e){
+                    if(ZYFILE.isUploding){
+                        updateAlert("请稍后，正在上传文件...",'alert-error',5000);
+                        return;
+                    }
 					// 判断当前是否有文件需要上传
 					if(ZYFILE.funReturnNeedFiles().length > 0){
 						$("#fileSubmit").click();
 					}else{
-						alert("请先选中文件再点击上传");
+                        updateAlert("请先添加文件再点击上传",'alert-error',5000);
 					}
 	            });
 				
@@ -411,6 +435,10 @@
 				if($("#rapidAddImg").length > 0){
 					// 绑定添加点击事件
 					$("#rapidAddImg").bind("click", function(e){
+                        if(ZYFILE.isUploding){
+                            updateAlert("请稍后，正在上传文件...",'alert-error',5000);
+                            return;
+                        }
 						$("#fileImage").click();
 		            });
 				}

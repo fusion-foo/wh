@@ -12,6 +12,7 @@ var ZYFILE = {
 		perUploadFile : [],           // 存放永久的文件数组，方便删除使用
 		fileNum : 0,                  // 代表文件总个数，因为涉及到继续添加，所以下一次添加需要在它的基础上添加索引
         get7TokenURL:'',
+        isUploding:false,
 		/* 提供给外部的接口 */
 		filterFile : function(files){ // 提供给外部的过滤文件格式等的接口，外部需要把过滤后的文件返回
 			return files;
@@ -163,11 +164,12 @@ var ZYFILE = {
 		    xhr.upload.addEventListener("progress",	 function(e){
 		    	// 回调到外部
 		    	self.onProgress(file, e.loaded, e.total);
+                self.isUploding = true;
 		    }, false);
 		    // 完成
 		    xhr.addEventListener("load", function(e){
-
-                upFileNameAry.push(comName);
+                self.isUploding = false;
+                file.aliases = comName;
 	    		// 从文件中删除上传成功的文件  false是不执行onDelete回调方法
 		    	self.funDeleteFile(file.index, false);
 		    	// 回调到外部
@@ -175,19 +177,27 @@ var ZYFILE = {
 		    	if(self.uploadFile.length==0){
 		    		// 回调全部完成方法
 		    		self.onComplete("全部完成");
+                    self.isUploding = false;
 		    	}
 		    }, false);
 		    // 错误
 		    xhr.addEventListener("error", function(e){
 		    	// 回调到外部
 		    	self.onFailure(file, xhr.responseText);
+                self.isUploding = false;
 		    }, false);
 
 
-            xhr.open("POST",self.url, true);
-            xhr.setRequestHeader("X_FILENAME", file.name);
-            //xhr.setRequestHeader("Content-type","multipart/form-data");
-            xhr.send(formdata);
+            try{
+                xhr.open("POST",self.url, true);
+                xhr.setRequestHeader("X_FILENAME", file.name);
+                //xhr.setRequestHeader("Content-type","multipart/form-data");
+                xhr.send(formdata);
+            }catch(e){
+                // 回调到外部
+                self.onFailure(file, e.message);
+            }
+
 
 
         },
@@ -204,6 +214,10 @@ var ZYFILE = {
             var ajURL = this.get7TokenURL;
             var resultData = $.ajax({url:ajURL,async:false});
             return resultData.responseText;
+        },
+
+        getUpFileNum:function(){
+             return this.uploadFile;
         },
 
 		// 返回需要上传的文件

@@ -165,7 +165,7 @@ var  ROOT = "/wh";
       </ul>
 </div><?php endif; ?>
 <?php if(!empty($normal_tips)): ?><p class="normal_tips"><b class="fa fa-info-circle"></b> <?php echo ($normal_tips); ?></p><?php endif; ?>
-            <?php if($need_datainfo): $__FOR_START_357315440__=0;$__FOR_END_357315440__=$ayitem;for($i=$__FOR_START_357315440__;$i < $__FOR_END_357315440__;$i+=1){ ?><div class="index_tap total">
+            <?php if($need_datainfo): $__FOR_START_1944837536__=0;$__FOR_END_1944837536__=$ayitem;for($i=$__FOR_START_1944837536__;$i < $__FOR_END_1944837536__;$i+=1){ ?><div class="index_tap total">
         <ul  class="inner" style="background-color:<?php echo ($itemArr[$i]['bgcolor']); ?>;
                                  border:<?php echo ($itemArr[$i]['bgsolid']); ?>">
             <li class="index_tap_item total_fans extra">
@@ -262,7 +262,7 @@ var  ROOT = "/wh";
 
             <!-- Modal ADDGOODS begin-->
             <div id="addgoods-modal" class="modal-demo" >
-                <button type="button" class="easyui-linkbutton" style="position: absolute; top: 5px;right: 5px;" onclick="closModal();">
+                <button type="button" class="easyui-linkbutton" style="position: absolute; top: 5px;right: 5px;" onclick="closModal(event,true);">
                     <span>&times;</span><span class="sr-only">Close</span>
                 </button>
                 <h4 class="modal-title">添加商品</h4>
@@ -322,7 +322,7 @@ var  ROOT = "/wh";
                     <h6 class="modal-title"></h6>
                     <div style="text-align: right; margin-top: 5px">
                         <a id="sumit-goods" href="#" class="easyui-linkbutton" plain="true" onclick="modalCilikHander(event)"><h4>确定</h4></a>
-                        <a  href="#" class="easyui-linkbutton" plain="true" onclick="closModal()"><h4>取消</h4></a>
+                        <a  href="#" class="easyui-linkbutton" plain="true" onclick="closModal(event,true)"><h4>取消</h4></a>
                     </div>
                 </div>
             </div>
@@ -424,12 +424,12 @@ var  ROOT = "/wh";
                     $("#demoh").empty();
                     $("#demoh").zyUpload({
                         width            :   "440px",                 // 宽度
-                        height           :   "400px",                 // 宽度
+                        height           :   "550px",                 // 宽度
                         itemWidth        :   "120px",                 // 文件项的宽度
                         itemHeight       :   "100px",                 // 文件项的高度
                         url              :   "http://upload.qiniu.com/",  // 上传文件的路径
                         multiple         :   true,                    // 是否可以多个文件上传
-                        dragDrop         :   true,                    // 是否可以拖动上传文件
+                        dragDrop         :   false,                    // 是否可以拖动上传文件
                         del              :   true,                    // 是否可以删除文件
                         finishDel        :   false,  				  // 是否在上传文件完成后删除预览
                         get7TokenURL     :"<?php echo addons_url ( 'Shop://GoodsManager/get7Token');?>",
@@ -442,7 +442,7 @@ var  ROOT = "/wh";
                         },
                         onShowedFiles: function(allFiles){
                             var el = document.getElementById('preview');
-                            var sortable = Sortable.create(el);
+                            var sortable = Sortable.create(el,{filter: ".add_upload"});
                         },
                         onDelete: function(file, surplusFiles){                     // 删除一个文件的回调方法
                             console.info("当前删除了此文件：");
@@ -465,7 +465,12 @@ var  ROOT = "/wh";
                     });
                 }
 
-                function closModal(event){
+                function closModal(event,isFormGoods){
+                    if(isFormGoods && ZYFILE.isUploding){
+                        updateAlert('正在上传图片，晢时无法关闭！','alert-error',4000);
+                        return;
+                    }
+
                     $('#cc').combotree('hidePanel');
                     Custombox.close();
                 }
@@ -561,13 +566,24 @@ var  ROOT = "/wh";
 
                 function verifySubmit(typeOfForms){
                        var ret;
+                       var tipStr;
                        var erros = $(typeOfForms).idealforms('get:invalid');
                        if(erros.length > 0){
-                           updateAlert('填写不完整或字段域无效，重新填写！','alert-error',4000);
+                           tipStr = '填写信息不完整或无效，请重新填写！';
                            ret = false;
                        }else{
                             ret = true;
                        }
+
+                       if(typeOfForms == '#addGoodsforms'){
+                           var upFiles = ZYFILE.getUpFileNum();
+                           if(upFiles.length > 0){
+                               tipStr = '商品图册还有' + upFiles.length + '张图片未上传. 上传或删除这些图片,方可点击确定提交数据！';
+                               ret = false;
+                           }
+                       }
+                       updateAlert(tipStr,'alert-error',5000);
+
                        return ret;
                 }
 

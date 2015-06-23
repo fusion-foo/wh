@@ -28,11 +28,11 @@ pre{font-family:'simsun';}
 .upload_choose{padding:1em;}
 .upload_drag_area{display:inline-block; width:63%; padding:4em 0; margin-left:.5em; border:1px dashed #ddd; background:#fff no-repeat 20px center; color:#999; text-align:center; vertical-align:middle;}
 .upload_drag_hover{border-color:#069; box-shadow:inset 2px 2px 4px rgba(0, 0, 0, .5); color:#333;}
-.upload_preview{overflow: scroll;height:250px;border-top:1px solid #D2D2D2; border-bottom:1px solid #bbb; background-color:#fff;}
+.upload_preview{overflow: scroll;height:480px;width:100%;border-top:1px solid #D2D2D2; border-bottom:1px solid #bbb; background-color:#fff;}
 .upload_append_list{margin:10px; float:left; position:relative;}
 .upload_append_list:hover{cursor:pointer;}
 .upload_delete{margin-left:2em;}
-.upload_image{/* max-height:135px; */ padding:0px;}
+.upload_image{/* max-height:135px; */ padding:0px;	}
 .upload_submit{padding-top:1em; padding-left:1em;}
 .upload_submit_btn{height:32px; font-size:14px;display:none;}
 .upload_progress{padding:5px; border-radius:10px; color:#fff; background-color:rgba(0,0,0,.6); position:absolute; left:25px; top:45px;}
@@ -178,6 +178,7 @@ pre{font-family:'simsun';}
 }
 .uploadImg{
 	margin:0px;
+    background: url("../images/add_img.png") no-repeat scroll center 5px rgba(0, 0, 0, 0);
 	/* max-height:135px; */
 }
 .file_progress{
@@ -200,7 +201,7 @@ pre{font-family:'simsun';}
 	height:24px;
 	left:0px;
 	right:0px;
-	background: none repeat scroll 0 0 red;
+	background: none repeat scroll 0 0 #8d4339;
 	color:#fff;
 	text-align:center;
 }
@@ -275,8 +276,8 @@ pre{font-family:'simsun';}
 				
 /* 不带有拖拽的样式 */
 .add_upload{
-	height:100%; 
-	margin:1em; 
+	height:102px;
+	margin:10px;
 	float:left; 
 	position:relative;
 }
