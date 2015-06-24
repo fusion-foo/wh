@@ -150,14 +150,20 @@
 	/**顶部警告栏*/
 	var content = $('#main');
 	var top_alert = $('#top-alert');
+    var cls_btn = top_alert.find('.close');
+    var yse_btn = top_alert.find('#yes-btn');
+    var cancel_btn = top_alert.find('#cancel-btn');
+    var alert_dialog = top_alert.find('#alert-dialog');
 	top_alert.find('.close').on('click', closeAlert);
 
     function closeAlert () {
         top_alert.removeClass('block').slideUp(200);
+        cls_btn.css('display','inline-block');
+        alert_dialog.css('display','none');
         // content.animate({paddingTop:'-=55'},200);
     }
 
-    window.updateAlert = function (text,c,dely) {
+    window.updateAlert = function (text,c,dely,dialog,handler) {
         var modal_z =  $('.custombox-overlay.custombox-overlay-fadein.custombox-overlay-default').css('z-index');
         top_alert.css('z-index',modal_z + 5);
 		text = text||'default';
@@ -179,7 +185,19 @@
             top_alert.removeClass('alert-error alert-warn alert-info alert-success').addClass(c);
 		}
 
-        if(dely > 0) setTimeout(closeAlert,dely);
+        if(dialog){
+            alert_dialog.css('display','inline-block');
+            cls_btn.css('display','none');
+            if(handler){
+                yse_btn.click(function(){handler.call(null,true)});
+                cancel_btn.click(function(){handler.call(null,false)});
+            }
+
+        }else{
+            cls_btn.css('display','inline-block');
+            alert_dialog.css('display','none');
+            if(dely > 0 ) setTimeout(closeAlert,dely);
+        }
 	};
 
     //按钮组

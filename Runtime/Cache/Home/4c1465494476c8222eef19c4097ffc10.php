@@ -39,8 +39,11 @@ var  ROOT = "/wh";
 	<!-- 头部 -->
 	<!-- 提示 -->
 <div id="top-alert" class="top-alert-tips alert-error" style="display: none;">
-  <a class="close" href="javascript:;"><b class="fa fa-times-circle"></b></a>
-  <div class="alert-content">这是内容</div>
+  <a id="cls-btn" class="close" href="javascript:;"><b class="fa fa-times-circle"></b></a>
+        <div class="alert-content">这是内容</div>
+        <span id="alert-dialog" style="position: absolute; right: 15px; display: none ">
+            <button id="yes-btn" class="easyui-linkbutton" >确定</button> <button id="cancel-btn" class="easyui-linkbutton" >取消</button>
+        </span>
 </div>
 <!-- 导航条
 ================================================== -->
@@ -165,7 +168,7 @@ var  ROOT = "/wh";
       </ul>
 </div><?php endif; ?>
 <?php if(!empty($normal_tips)): ?><p class="normal_tips"><b class="fa fa-info-circle"></b> <?php echo ($normal_tips); ?></p><?php endif; ?>
-            <?php if($need_datainfo): $__FOR_START_1944837536__=0;$__FOR_END_1944837536__=$ayitem;for($i=$__FOR_START_1944837536__;$i < $__FOR_END_1944837536__;$i+=1){ ?><div class="index_tap total">
+            <?php if($need_datainfo): $__FOR_START_796595044__=0;$__FOR_END_796595044__=$ayitem;for($i=$__FOR_START_796595044__;$i < $__FOR_END_796595044__;$i+=1){ ?><div class="index_tap total">
         <ul  class="inner" style="background-color:<?php echo ($itemArr[$i]['bgcolor']); ?>;
                                  border:<?php echo ($itemArr[$i]['bgsolid']); ?>">
             <li class="index_tap_item total_fans extra">
@@ -578,12 +581,13 @@ var  ROOT = "/wh";
                        if(typeOfForms == '#addGoodsforms'){
                            var upFiles = ZYFILE.getUpFileNum();
                            if(upFiles.length > 0){
-                               tipStr = '商品图册还有' + upFiles.length + '张图片未上传. 上传或删除这些图片,方可点击确定提交数据！';
+                               tipStr = '商品图册还有 ' + upFiles.length + ' 张未上传图片. 上传或删除这些图片, 方可点击 "确定" ！';
                                ret = false;
                            }
                        }
-                       updateAlert(tipStr,'alert-error',5000);
-
+                       updateAlert(tipStr,'alert-warn',5000,true,function handler(t){
+                                           console.log(t);
+                       });
                        return ret;
                 }
 

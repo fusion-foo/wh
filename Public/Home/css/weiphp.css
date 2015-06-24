@@ -101,8 +101,35 @@ background-clip: none;}
 .form-item-div input{ width:300px;}
 /* 顶部提示 */
 .top-alert-tips{position:fixed; top:0; left:50%; margin-left:-300px; width:600px; z-index:10099; background:#1dbd03; border-bottom-left-radius:10px;border-bottom-right-radius:10px; color:#fff; height:50px; line-height:50px; white-space:nowrap; padding:0 20px;}
-.alert-success{background:#1dbd03;}
-.alert-error{background:#fb1d0f;}
+
+.alert-content{
+    margin-left: 14px;
+    max-width:600px;
+    word-wrap: break-word;
+    word-break: break-word;
+    display: inline;
+}
+
+.alert-info {
+    background-color: #D9EDF7;
+    border-color: #BCE8F1;
+    color: #3A87AD;
+}
+.alert-error {
+    color: white;
+    border-color: #eed3d7;
+    background-color: #FF6666;
+}
+.alert-success {
+    color: #468847;
+    background-color: #CCFF99;
+    border-color: #eed3d7;
+}
+.alert-warn {
+    color: #f3e4dc;
+    background-color: #bdab11;
+    border-color: #7e693b;
+}
 .top-alert-tips .close{ position:absolute; top:10px; right:0px; width:30px; height:30px; line-height:30px; color:#fff; font-size:22px;}
 /* 底部footer */
 .footer{ padding:10px 20px 10px 160px; text-align: right; background-color:#eee; clear:both}

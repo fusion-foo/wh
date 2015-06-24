@@ -246,6 +246,9 @@
 					dragDrop: $("#fileDragArea").get(0),
 					url: $("#uploadForm").attr("action"),
                     get7TokenURL:para.get7TokenURL,
+                    uploadFile : [],  			  // 需要上传的文件数组
+                    lastUploadFile : [],          // 上一次选择的文件数组，方便继续上传使用
+                    perUploadFile : [],           // 存放永久的文件数组，方便删除使用
 					filterFile: function(files) {
 						// 过滤合格的文件
 						return self.funFilterEligibleFile(files);

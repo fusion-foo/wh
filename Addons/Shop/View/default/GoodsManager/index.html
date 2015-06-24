@@ -425,12 +425,13 @@
                        if(typeOfForms == '#addGoodsforms'){
                            var upFiles = ZYFILE.getUpFileNum();
                            if(upFiles.length > 0){
-                               tipStr = '商品图册还有' + upFiles.length + '张图片未上传. 上传或删除这些图片,方可点击确定提交数据！';
+                               tipStr = '商品图册还有 ' + upFiles.length + ' 张未上传图片. 上传或删除这些图片, 方可点击 "确定" ！';
                                ret = false;
                            }
                        }
-                       updateAlert(tipStr,'alert-error',5000);
-
+                       updateAlert(tipStr,'alert-warn',5000,true,function handler(t){
+                                           console.log(t);
+                       });
                        return ret;
                 }
 
