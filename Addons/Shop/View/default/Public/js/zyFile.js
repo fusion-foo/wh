@@ -80,7 +80,7 @@ var ZYFILE = {
 			
 			// 调用对文件处理的方法
 			this.funDealtFiles();
-			
+            self.fileInput.value = '';
 			return true;
 		},
 		// 处理过滤后的文件，给每个文件设置下标
@@ -134,6 +134,7 @@ var ZYFILE = {
 			console.info(this.uploadFile);
 			return true;
 		},
+
 		// 上传多个文件
 		funUploadFiles : function(){
 			var self = this;  // 在each中this指向没个v  所以先将this保留
@@ -204,7 +205,7 @@ var ZYFILE = {
 
         getComName:function(file){
             var fileName = file.name.substr(0,file.name.lastIndexOf('.'));
-            return '/' + wname + '/' + addGName + '/' + fileName + '.' + getExtension(file.name );
+            return '/' + wname + '/' + guid + '/' + fileName + '.' + getExtension(file.name );
             function getExtension(filename){
                 return (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename) : undefined;
             }
@@ -218,6 +219,18 @@ var ZYFILE = {
 
         getUpFileNum:function(){
              return this.uploadFile;
+        },
+
+        getAllFiles:function(){
+            return this.perUploadFile;
+        },
+
+        getAliases:function(files){
+            var retAay = [];
+            $.each(files,function(i, item){
+                    if(item.hasOwnProperty('aliases'))retAay.push(item.aliases);
+            });
+            return retAay;
         },
 
 		// 返回需要上传的文件

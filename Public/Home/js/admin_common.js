@@ -154,6 +154,7 @@
     var yse_btn = top_alert.find('#yes-btn');
     var cancel_btn = top_alert.find('#cancel-btn');
     var alert_dialog = top_alert.find('#alert-dialog');
+    var st;
 	top_alert.find('.close').on('click', closeAlert);
 
     function closeAlert () {
@@ -169,9 +170,13 @@
 		text = text||'default';
 		c = c||false;
 		if ( text!='default' ) {
-            top_alert.find('.alert-content').text(text);
 			if (top_alert.hasClass('block')) {
+                top_alert.addClass('block').slideUp(200,function(){
+                    top_alert.find('.alert-content').text(text);
+                    top_alert.addClass('block').slideDown(200);
+                });
 			} else {
+                top_alert.find('.alert-content').text(text);
 				top_alert.addClass('block').slideDown(200);
 				// content.animate({paddingTop:'+=55'},200);
 			}
@@ -186,19 +191,48 @@
 		}
 
         if(dialog){
+            clearTimeout(st);
             alert_dialog.css('display','inline-block');
             cls_btn.css('display','none');
             if(handler){
-                yse_btn.click(function(){handler.call(null,true)});
-                cancel_btn.click(function(){handler.call(null,false)});
+                yse_btn.click(function(){handler.call(null,true);closeAlert()});
+                cancel_btn.click(function(){handler.call(null,false);});
             }
-
         }else{
             cls_btn.css('display','inline-block');
             alert_dialog.css('display','none');
-            if(dely > 0 ) setTimeout(closeAlert,dely);
+            if(dely > 0 ) st = setTimeout(closeAlert,dely);
         }
 	};
+
+    window.getAuid = function(len, radix) {
+        var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
+        var uuid = [], i;
+        radix = radix || chars.length;
+
+        if (len) {
+            // Compact form
+            for (i = 0; i < len; i++) uuid[i] = chars[0 | Math.random()*radix];
+        } else {
+            // rfc4122, version 4 form
+            var r;
+
+            // rfc4122 requires these characters
+            uuid[8] = uuid[13] = uuid[18] = uuid[23] = '-';
+            uuid[14] = '4';
+
+            // Fill in random data.  At i==19 set the high bits of clock sequence as
+            // per rfc4122, sec. 4.1.5
+            for (i = 0; i < 36; i++) {
+                if (!uuid[i]) {
+                    r = 0 | Math.random()*16;
+                    uuid[i] = chars[(i == 19) ? (r & 0x3) | 0x8 : r];
+                }
+            }
+        }
+
+        return uuid.join('');
+    };
 
     //按钮组
     (function(){

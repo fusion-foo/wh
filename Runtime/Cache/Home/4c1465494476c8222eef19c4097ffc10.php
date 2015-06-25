@@ -168,7 +168,7 @@ var  ROOT = "/wh";
       </ul>
 </div><?php endif; ?>
 <?php if(!empty($normal_tips)): ?><p class="normal_tips"><b class="fa fa-info-circle"></b> <?php echo ($normal_tips); ?></p><?php endif; ?>
-            <?php if($need_datainfo): $__FOR_START_796595044__=0;$__FOR_END_796595044__=$ayitem;for($i=$__FOR_START_796595044__;$i < $__FOR_END_796595044__;$i+=1){ ?><div class="index_tap total">
+            <?php if($need_datainfo): $__FOR_START_2126940293__=0;$__FOR_END_2126940293__=$ayitem;for($i=$__FOR_START_2126940293__;$i < $__FOR_END_2126940293__;$i+=1){ ?><div class="index_tap total">
         <ul  class="inner" style="background-color:<?php echo ($itemArr[$i]['bgcolor']); ?>;
                                  border:<?php echo ($itemArr[$i]['bgsolid']); ?>">
             <li class="index_tap_item total_fans extra">
@@ -343,9 +343,11 @@ var  ROOT = "/wh";
                 var categoryData = <?php echo ($categoryData); ?>;
                 var selectTreeItemID = 0;
                 var wname = '<?php echo ($member_public["public_name"]); ?>';
-                var addGName = '未命名商品';
+                var guid = 0;
                 var upFileNameAry = [];
                 var currModalFroms;
+                var upFiles = ZYFILE.getUpFileNum();
+                var allPerFiles = ZYFILE.getAllFiles();
 
                 $.ajaxSetup({
                     cache: false
@@ -444,8 +446,7 @@ var  ROOT = "/wh";
                             console.info(allFiles);
                         },
                         onShowedFiles: function(allFiles){
-                            var el = document.getElementById('preview');
-                            var sortable = Sortable.create(el,{filter: ".add_upload"});
+
                         },
                         onDelete: function(file, surplusFiles){                     // 删除一个文件的回调方法
                             console.info("当前删除了此文件：");
@@ -497,6 +498,7 @@ var  ROOT = "/wh";
 
                         case "adddbtn":
                             initZyUpload();
+                            guid = this.getAuid(8, 16);
                             tagerModal = '#addgoods-modal';
                             modalWidth = 800;
                             $('#cateSelectDiv').insertAfter('#goods-name');
@@ -553,42 +555,78 @@ var  ROOT = "/wh";
                                    break;
 
                              case "sumit-cate":
-                                 if(! verifySubmit('#addCateforms'))return;
-                                 selectTreeItemID = $('#cc').combotree('getValue');
-                                 var name = $('#add-cate-input').val();
-                                 var pid = getRealCatePid(selectTreeItemID);
-                                 addCategory(name,pid);
+                                 verifyCateSubmit(function(){
+                                     selectTreeItemID = $('#cc').combotree('getValue');
+                                     var name = $('#add-cate-input').val();
+                                     var pid = getRealCatePid(selectTreeItemID);
+                                     addCategory(name,pid);
+                                 });
                                  break;
 
                              case "sumit-goods":
-                                 if(! verifySubmit('#addGoodsforms'))return;
-                                 addGoods(selectTreeItemID);
+                                 verifyGoodsSubmit(function(){
+                                     addGoods(selectTreeItemID);
+                                 });
                                  break;
                          }
                 }
 
-                function verifySubmit(typeOfForms){
-                       var ret;
+                function verifyCateSubmit(passHandler){
+                    var erros = $('#addCateforms').idealforms('get:invalid');
+                    var tipStr;
+                    if(erros.length > 0){
+                        tipStr = '填写信息不完整或无效，请重新填写！';
+                        updateAlert(tipStr,'alert-warn',5000);
+                    }else{
+                        passHandler(0);
+                    }
+                }
+
+                function verifyGoodsSubmit(passHandler){
+                       if( ZYFILE.isUploding){
+                           updateAlert('正在上传图片，晢时无法提交，请稍后....','alert-warn',4000);
+                           return;
+                       }
+                       upFiles = ZYFILE.getUpFileNum();
+                       allPerFiles = ZYFILE.getAllFiles();
                        var tipStr;
-                       var erros = $(typeOfForms).idealforms('get:invalid');
+                       var handler;
+                       var erros = $('#addGoodsforms').idealforms('get:invalid');
+
                        if(erros.length > 0){
                            tipStr = '填写信息不完整或无效，请重新填写！';
-                           ret = false;
+                           handler = null;
+                           updateAlert(tipStr,'alert-warn',5000);
                        }else{
-                            ret = true;
-                       }
 
-                       if(typeOfForms == '#addGoodsforms'){
-                           var upFiles = ZYFILE.getUpFileNum();
                            if(upFiles.length > 0){
-                               tipStr = '商品图册还有 ' + upFiles.length + ' 张未上传图片. 上传或删除这些图片, 方可点击 "确定" ！';
-                               ret = false;
+                               tipStr = '测试还有 ' + upFiles.length + ' 张图片未上传,现在提交数据将忽略这些图片，是否确定提交数据？';
+                               handler = function (t){
+                                   if(t){
+                                       passHandler();
+                                   }else{
+                                       updateAlert('您可以上传或删除，处理这些图片。以便提交数据。','alert-warn',5000);
+                                   }
+
+                               };
+                               updateAlert(tipStr,'alert-warn',5000,true,handler);
+
+                           }else if (allPerFiles.length == 0){
+                               tipStr = '商品图册还没有相片，现在提交数据商品图册将无图片，是否确定提交数据？';
+                               handler = function (t){
+                                   if(t){
+                                       passHandler();
+                                   }else{
+                                       updateAlert('您可以添加图片到预览框，然后点击“上传图片”按钮，上传图片至商品相册.','alert-warn',5000);
+                                   }
+
+                               };
+                               updateAlert(tipStr,'alert-warn',5000,true,handler);
+
+                           }else{
+                               passHandler();
                            }
                        }
-                       updateAlert(tipStr,'alert-warn',5000,true,function handler(t){
-                                           console.log(t);
-                       });
-                       return ret;
                 }
 
                 function resetModalFroms(){
@@ -651,6 +689,9 @@ var  ROOT = "/wh";
 
 
                 function addGoods(pid){
+                         console.log(allPerFiles);
+                         var upLoadedList = $("#demoh").zyUpload('getMovebleFiles',true);
+                         var testS = ZYFILE.getAliases(upLoadedList);
 
                 }
 
