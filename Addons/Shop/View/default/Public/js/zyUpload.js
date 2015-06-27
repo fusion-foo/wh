@@ -224,7 +224,7 @@
 					html += '		</div>';
 					html += '	</a>';
 					html += '	<p id="uploadProgress_'+file.index+'" class="file_progress"></p>';
-					html += '	<p id="uploadFailure_'+file.index+'" class="file_failure">上传失败，请重试</p>';
+					html += '	<p id="uploadFailure_'+file.index+'" class="file_failure">上传失败，双击重试</p>';
 					html += '	<p id="uploadSuccess_'+file.index+'" class="file_success"></p>';
 					html += '</div>';
                 	

@@ -2429,7 +2429,7 @@ function getCGARY($id){
             if( $nodes.isCatalog ){
                 $map ['token'] = get_token ();
                 $map ['cate_id'] = $nodes['id'];
-                $goods = M('shop_goods')->where ( $map )->field(array('cid'=>'id','id'=>'gid' ,'name','market_price' => 'selling','bug_count' => 'sold','view_count' => 'preview','status','like','cate_id' => '_parentId'))->select();
+                $goods = M('shop_goods')->where ( $map )->field(array('cid'=>'id','id'=>'gid' ,'name','mprice' => 'selling','bug_count' => 'sold','view_count' => 'preview','status','like','cate_id' => '_parentId'))->select();
                 foreach($goods as $key => $value){
                     $goods[$key]['like'] = get_like_stars(intval($goods[$key]['like']));
                     $goods[$key]['status'] =  $goods[$key]['status'] == '1' ? '在售':'下架';

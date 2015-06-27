@@ -205,7 +205,7 @@ var ZYFILE = {
 
         getComName:function(file){
             var fileName = file.name.substr(0,file.name.lastIndexOf('.'));
-            return '/' + wname + '/' + guid + '/' + fileName + '.' + getExtension(file.name );
+            return '/' + wname + '/' + albumsUID + '/' + fileName + '.' + getExtension(file.name );
             function getExtension(filename){
                 return (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename) : undefined;
             }

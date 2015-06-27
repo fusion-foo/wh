@@ -205,7 +205,7 @@
         }
 	};
 
-    window.getAuid = function(len, radix) {
+    window.GUIGenerator = function(len, radix) {
         var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
         var uuid = [], i;
         radix = radix || chars.length;

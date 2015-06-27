@@ -69,8 +69,8 @@ class GoodsManagerController extends BaseController{
     }
 
     public function addCateNode(){
-           $name = I('name');
-           $pid = I('pid');
+           $name = I('catename');
+           $pid = I('cateoptions');
            $map ['token'] = get_token ();
            $map ['pid'] =  $pid;
            $map ['name'] =  $name;
@@ -83,6 +83,7 @@ class GoodsManagerController extends BaseController{
                $resulData['info'] = 'error';
                $resulData['data'] = ', 已有相同类别存在！';
                $this->ajaxReturn($resulData);
+               return;
            }
 
            $data['token'] = $map ['token'];
@@ -103,6 +104,53 @@ class GoodsManagerController extends BaseController{
                $resulData['data'] = ', 服务端出现错误:'.$isAdded;
                $this->ajaxReturn($resulData);
            }
+    }
+
+    public function addGoods(){
+           $name = I('goodsname');
+           $pid = I('cateoptions');
+           $map ['token'] = get_token ();
+           $map ['pid'] =  $pid;
+           $map ['name'] =  $name;
+           $goodsModel = M("shop_goods");
+           $resulData = '';
+           $hasOne = $goodsModel->where($map)->select();
+
+           if($hasOne){
+               $resulData['info'] = 'error';
+               $resulData['data'] = ', 已有相同类别存在！';
+               $this->ajaxReturn($resulData);
+               return;
+           }
+
+            $data['token'] = $map ['token'];
+            $data['name'] = $name;
+            $data['cate_id'] = $pid;
+            $data['mprice']   = I('mprice');
+            $data['sprice']   = I('sprice');
+            $data['mprice']   = I('mprice');
+            $data['pawarded'] = I('pawarded');
+            $data['brief']    = I('brief');
+            $data['albums']   = I('albums');
+            $data['cTime']    = time();
+
+
+            $isAdded = $goodsModel -> add($data);
+
+
+            if($isAdded){
+                $data['id'] = $isAdded;
+                $data['CGJson'] = get_category_goods_json();
+                $data['CJson'] = get_category_json();
+                $resulData['info'] = 'success';
+                $resulData['data'] = $data;
+                $this->ajaxReturn($resulData);
+            }else{
+                $resulData['info'] = 'error';
+                $resulData['data'] = ', 服务端出现错误:'.$isAdded;
+                $this->ajaxReturn($resulData);
+            }
+
     }
 
     public function clearUPCate(){

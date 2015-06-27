@@ -168,7 +168,7 @@ var  ROOT = "/wh";
       </ul>
 </div><?php endif; ?>
 <?php if(!empty($normal_tips)): ?><p class="normal_tips"><b class="fa fa-info-circle"></b> <?php echo ($normal_tips); ?></p><?php endif; ?>
-            <?php if($need_datainfo): $__FOR_START_2126940293__=0;$__FOR_END_2126940293__=$ayitem;for($i=$__FOR_START_2126940293__;$i < $__FOR_END_2126940293__;$i+=1){ ?><div class="index_tap total">
+            <?php if($need_datainfo): $__FOR_START_1098418735__=0;$__FOR_END_1098418735__=$ayitem;for($i=$__FOR_START_1098418735__;$i < $__FOR_END_1098418735__;$i+=1){ ?><div class="index_tap total">
         <ul  class="inner" style="background-color:<?php echo ($itemArr[$i]['bgcolor']); ?>;
                                  border:<?php echo ($itemArr[$i]['bgsolid']); ?>">
             <li class="index_tap_item total_fans extra">
@@ -188,8 +188,8 @@ var  ROOT = "/wh";
             <div id="treeContents" style="padding: 20px">
                 <span><p>商品列表</p></span>
                 <div style="padding:5px;background:#fafafa;width:1008px;border:1px solid #ccc">
-                    <a id="addcbtn" href="#" class="easyui-linkbutton" plain="true" iconCls="icon-add" onclick="openModal(event)">添加类别</a>
-                    <a id="adddbtn" href="#" class="easyui-linkbutton" plain="true" iconCls="icon-add" onclick="openModal(event)">添加商品</a>
+                    <a id="adddbtn" href="#" class="easyui-linkbutton" plain="true" iconCls="icon-add" onclick="openModalHandler('addgoods')">添加商品</a>
+                    <a id="addcbtn" href="#" class="easyui-linkbutton" plain="true" iconCls="icon-add" onclick="openModalHandler('addcate')">添加类别</a>
                     <a id="delbtn" href="#" class="easyui-linkbutton" plain="true" iconCls="icon-remove" onclick="removeItem()">移除</a>
                     <a id="edtbtn" href="#" class="easyui-linkbutton" plain="true" iconCls="icon-edit">编辑</a>
                     <a id="expbtn" href="#" class="easyui-linkbutton" data-options="" >展开全部</a>
@@ -254,7 +254,7 @@ var  ROOT = "/wh";
                             </div>
 
                             <div style="text-align: right; padding-top: 10px">
-                                <a id="sumit-cate" href="#" class="easyui-linkbutton" plain="true" onclick="modalCilikHander(event)">确定</a>
+                                <a id="sumit-cate" href="#" class="easyui-linkbutton" plain="true" onclick="formsSubmitHander(event)">确定</a>
                                 <a  href="#" class="easyui-linkbutton" plain="true" onclick="closModal()">取消</a>
                             </div>
                     </form>
@@ -276,25 +276,25 @@ var  ROOT = "/wh";
                             <!-- Text -->
                             <div id="goods-name" class="field">
                                 <label class="main">商品名称:</label>
-                                <input id="gni" name="goodsname" type="text" data-idealforms-ajax="<?php echo ($verifyGN); ?>&kind=goods">
+                                <input id="goods-name-input" name="goodsname" type="text" data-idealforms-ajax="<?php echo ($verifyGN); ?>&kind=goods">
                                 <span class="error"></span>
                             </div>
 
                             <div class="field">
                                 <label class="main">市场价:   ￥ </label>
-                                <input name="mprice" type="number" min="0" max="99999">
+                                <input id="goods-mprice-input" name="mprice" type="number" min="0" max="99999">
                                 <span class="error"></span>
                             </div>
 
                             <div class="field">
                                 <label class="main">销售价:   ￥ </label>
-                                <input name="sprice" type="number" min="0" max="999999">
+                                <input id="goods-sprice-input" name="sprice" type="number" min="0" max="999999">
                                 <span class="error"></span>
                             </div>
 
                             <div class="field">
                                 <label class="main">赠送积分:</label>
-                                <input name="Pawarded" type="number" min="0" max="999999">
+                                <input id="goods-pawarded-input" name="pawarded" type="number" min="0" max="999999">
                                 <span class="error"></span>
                             </div>
 
@@ -302,7 +302,7 @@ var  ROOT = "/wh";
                             <!-- Textarea -->
                             <div class="field">
                                 <label class="main">商品简介:</label>
-                                <textarea id="goods-brief" name="brief" cols="30" rows="10" style="width: 290px"></textarea>
+                                <textarea id="goods-brief-input" name="brief" cols="30" rows="10" style="width: 290px"></textarea>
                                 <span class="error"></span>
                             </div>
 
@@ -314,7 +314,7 @@ var  ROOT = "/wh";
                             <div class="field">
                                 <label><h5>商品图册:</h5></label>
                                 <div style="width: 440px" >
-                                    <div id="demoh" class="demoh" style="float:left">
+                                    <div id="goods-albums" class="goods-albums" style="float:left">
 
                                     </div>
                                 </div>
@@ -324,7 +324,7 @@ var  ROOT = "/wh";
                     </form>
                     <h6 class="modal-title"></h6>
                     <div style="text-align: right; margin-top: 5px">
-                        <a id="sumit-goods" href="#" class="easyui-linkbutton" plain="true" onclick="modalCilikHander(event)"><h4>确定</h4></a>
+                        <a id="sumit-goods" href="#" class="easyui-linkbutton" plain="true" onclick="formsSubmitHander(event)"><h4>确定</h4></a>
                         <a  href="#" class="easyui-linkbutton" plain="true" onclick="closModal(event,true)"><h4>取消</h4></a>
                     </div>
                 </div>
@@ -343,9 +343,10 @@ var  ROOT = "/wh";
                 var categoryData = <?php echo ($categoryData); ?>;
                 var selectTreeItemID = 0;
                 var wname = '<?php echo ($member_public["public_name"]); ?>';
-                var guid = 0;
+                var albumsUID = 0;
                 var upFileNameAry = [];
                 var currModalFroms;
+                var currHandFormInfo;
                 var upFiles = ZYFILE.getUpFileNum();
                 var allPerFiles = ZYFILE.getAllFiles();
 
@@ -399,7 +400,7 @@ var  ROOT = "/wh";
                             'goodsname': 'required ajax',
                             'mprice':'required number',
                             'sprice':'required number',
-                            'Pawarded':'number'
+                            'pawarded':'number'
                         },
                         errors: {
                             'mprice':{
@@ -410,7 +411,7 @@ var  ROOT = "/wh";
                                 required: '价格不可以为空，必须填写！',
                                 number: '价格必须是数字，以元为单位'
                             },
-                            'Pawarded':{
+                            'pawarded':{
                                 number: '必须是数字，以积分点数为单位'
                             },
                             'goodsname': {
@@ -419,56 +420,10 @@ var  ROOT = "/wh";
                             }
                         }
                     });
-
-
-
-
                 });
 
-                function initZyUpload(){
-                    $("#demoh").empty();
-                    $("#demoh").zyUpload({
-                        width            :   "440px",                 // 宽度
-                        height           :   "550px",                 // 宽度
-                        itemWidth        :   "120px",                 // 文件项的宽度
-                        itemHeight       :   "100px",                 // 文件项的高度
-                        url              :   "http://upload.qiniu.com/",  // 上传文件的路径
-                        multiple         :   true,                    // 是否可以多个文件上传
-                        dragDrop         :   false,                    // 是否可以拖动上传文件
-                        del              :   true,                    // 是否可以删除文件
-                        finishDel        :   false,  				  // 是否在上传文件完成后删除预览
-                        get7TokenURL     :"<?php echo addons_url ( 'Shop://GoodsManager/get7Token');?>",
-                        /* 外部获得的回调接口 */
-                        onSelect: function(files, allFiles){                    // 选择文件的回调方法
-                            console.info("当前选择了以下文件：");
-                            console.info(files);
-                            console.info("之前没上传的文件：");
-                            console.info(allFiles);
-                        },
-                        onShowedFiles: function(allFiles){
 
-                        },
-                        onDelete: function(file, surplusFiles){                     // 删除一个文件的回调方法
-                            console.info("当前删除了此文件：");
-                            console.info(file);
-                            console.info("当前剩余的文件：");
-                            console.info(surplusFiles);
-                        },
-                        onSuccess: function(file){                    // 文件上传成功的回调方法
-                            console.info("此文件上传成功：");
-                            console.info(file);
-                        },
-                        onFailure: function(file){                    // 文件上传失败的回调方法
-                            console.info("此文件上传失败：");
-                            console.info(file);
-                        },
-                        onComplete: function(responseInfo){           // 上传完成的回调方法
-                            console.info("文件上传完成");
-                            console.info(responseInfo);
-                        }
-                    });
-                }
-
+//----------------------MODAL相关 BEGIN -------------------------------------//
                 function closModal(event,isFormGoods){
                     if(isFormGoods && ZYFILE.isUploding){
                         updateAlert('正在上传图片，晢时无法关闭！','alert-error',4000);
@@ -479,30 +434,87 @@ var  ROOT = "/wh";
                     Custombox.close();
                 }
 
-                function openModal(event){
+                function openModalHandler(type){
+                    var cateFormsInfo = {type:null,catename:null,cateoptions:null};
+
+                    var goodsFormsInfo = {type:null,goodsname:'null',cateoptions:null,
+                                          mprice:null,sprice:null,pawarded:null,
+                                          brief:null,albums:null,albumsuid:null};
+
+
+                    switch(type){
+                        case 'addcate'  :
+                            cateFormsInfo.type = type;
+                            cateFormsInfo.cateoptions = getSetSelectValue();
+                            currHandFormInfo = cateFormsInfo;
+                            openModal('cate',cateFormsInfo);
+                            break
+
+                        case 'addgoods' :
+                            goodsFormsInfo.type = type;
+                            goodsFormsInfo.cateoptions = getSetSelectValue();
+                            currHandFormInfo = goodsFormsInfo;
+                            openModal('goods',goodsFormsInfo);
+                            break
+
+                        case 'editcate' :
+                            currHandFormInfo = cateFormsInfo;
+                            break
+
+                        case 'editgoods':
+                            currHandFormInfo = goodsFormsInfo;
+                            break
+                    }
+
+                    function getSetSelectValue(){
+                        var cateSelectData = getCateDataWithNone();
+                        var pid = getRealCatePid(selectTreeItemID);
+                        var cateItem = getCateItemByID(pid,categoryData);
+                        if(cateItem){
+                            return cateItem.name;
+                        }else{
+                            return cateSelectData[0].text;
+                        }
+                    }
+
+                }
+
+
+
+                function openModal(type,formsInfo){
                     var tagerModal;
                     var modalWidth;
-                    var openKind = event.currentTarget.id;
-                    var selectorStr  = (openKind === 'addcbtn' ? '#addCateforms':'#addGoodsforms');
+                    var selectorStr  = (type === 'cate' ? '#addCateforms':'#addGoodsforms');
                     currModalFroms = $(selectorStr);
                     resetModalFroms();
-                    switch(event.currentTarget.id){
-                        case "addcbtn":
+                    var cateSelectData = getCateDataWithNone();
+                    $('#cc').combotree({data:cateSelectData});
+                    $('#cc').combotree('setValue',formsInfo.cateoptions);
+                    switch(type){
+                        case "cate":
                             tagerModal = '#addcate-modal';
                             modalWidth = 350;
-                            var addCateInput =  $('#add-cate-input');
-                            addCateInput.val(addCateInput[0].defaultValue);
                             $('#cateSelectDiv').insertAfter('#cate-name-div');
                             $('#cateSelectDiv').css('display','block');
+
+                            //设置表单信息
+                            if(formsInfo.catename)currModalFroms.find('#add-cate-input').val(formsInfo.catename);
                             break;
 
-                        case "adddbtn":
+                        case "goods":
                             initZyUpload();
-                            guid = this.getAuid(8, 16);
+                            albumsUID = this.GUIGenerator(8, 16);
                             tagerModal = '#addgoods-modal';
                             modalWidth = 800;
                             $('#cateSelectDiv').insertAfter('#goods-name');
                             $('#cateSelectDiv').css('display','block');
+
+                            //设置表单信息
+                            if(formsInfo.goodsname)currModalFroms.find('#goods-name-input').val(formsInfo.goodsname);
+                            if(formsInfo.mprice)currModalFroms.find('#goods-mprice-input').val(formsInfo.mprice);
+                            if(formsInfo.sprice)currModalFroms.find('#goods-sprice-input').val(formsInfo.sprice);
+                            if(formsInfo.pawarded)currModalFroms.find('#goods-pawarded-input').val(formsInfo.pawarded);
+                            if(formsInfo.brief)currModalFroms.find('#goods-brief-input').val(formsInfo.brief);
                             break
                     }
 
@@ -515,12 +527,13 @@ var  ROOT = "/wh";
                         width:modalWidth,
                         open:function(){
 
-                            var cateSelectData = getCateSelectData();
-                            $('#cc').combotree({data:cateSelectData});
+
 
                             setComboPanleOnTop();
-                            setSelectValue();
 
+
+
+                            ////修复下拉树型菜单
                             function setComboPanleOnTop(){
                                 currModalFroms.click(function(event){
                                     if(event.target.className.indexOf('textbox') > -1){
@@ -530,15 +543,6 @@ var  ROOT = "/wh";
                                 });
                             }
 
-                            function setSelectValue(){
-                                var pid = getRealCatePid(selectTreeItemID);
-                                var cateItem = getCateItemByID(pid,categoryData);
-                                if(cateItem){
-                                    $('#cc').combotree('setValue',cateItem.name);
-                                }else{
-                                    $('#cc').combotree('setValue',cateSelectData[0].text);
-                                }
-                            }
                         },
                         close:function(){
                             $('#cateSelectDiv').appendTo('#contents');
@@ -548,24 +552,33 @@ var  ROOT = "/wh";
                     });
                 }
 
-                function modalCilikHander(event){
+                function formsSubmitHander(event){
+                         currHandFormInfo.cateoptions = getRealCatePid(selectTreeItemID);
                          switch(event.currentTarget.id){
-                             case "add-cate-input":
-
-                                   break;
-
                              case "sumit-cate":
                                  verifyCateSubmit(function(){
                                      selectTreeItemID = $('#cc').combotree('getValue');
-                                     var name = $('#add-cate-input').val();
-                                     var pid = getRealCatePid(selectTreeItemID);
-                                     addCategory(name,pid);
+                                     currHandFormInfo.catename = $('#add-cate-input').val().trim();
+                                     addCategory(currHandFormInfo);
                                  });
                                  break;
 
                              case "sumit-goods":
                                  verifyGoodsSubmit(function(){
-                                     addGoods(selectTreeItemID);
+                                     currHandFormInfo.goodsname = $('#goods-name-input').val().trim();
+                                     currHandFormInfo.mprice = $('#goods-mprice-input').val().trim();
+                                     currHandFormInfo.sprice = $('#goods-sprice-input').val().trim();
+                                     currHandFormInfo.pawarded = $('#goods-pawarded-input').val().trim();
+                                     currHandFormInfo.brief = $('#goods-brief-input').val().trim();
+                                     currHandFormInfo.albums = getAblumsData();;
+                                     currHandFormInfo.albumsuid = albumsUID;
+                                     addGoods(currHandFormInfo);
+
+                                     function getAblumsData(){
+                                         var upLoadedList = $("#goods-albums").zyUpload('getMovebleFiles',true);
+                                         var upLoadAry = ZYFILE.getAliases(upLoadedList);
+                                         return upLoadAry.join('|-|');
+                                     }
                                  });
                                  break;
                          }
@@ -617,7 +630,7 @@ var  ROOT = "/wh";
                                    if(t){
                                        passHandler();
                                    }else{
-                                       updateAlert('您可以添加图片到预览框，然后点击“上传图片”按钮，上传图片至商品相册.','alert-warn',5000);
+                                       updateAlert('您可以添加图片到预览框，然后点击“开始上传”按钮，上传图片至商品相册.','alert-warn',5000);
                                    }
 
                                };
@@ -640,23 +653,6 @@ var  ROOT = "/wh";
                     }
                 }
 
-                function onContextMenu(e,row){
-                    e.preventDefault();
-                    $(this).treegrid('select', row.id);
-                    var cutbn = $('#mm').menu('findItem','取消类别');
-                    if(!row.isCatalog){
-                        $('#mm').menu('disableItem', cutbn.target);
-                    }else{
-                        $('#mm').menu('enableItem', cutbn.target);
-                    }
-
-                    $('#mm').menu('show',{
-                        left: e.pageX,
-                        top: e.pageY
-                    });
-                }
-
-
                 function checkSelect(){
                     var isSelect = false;
                     if (selectTreeItemID == undefined){
@@ -668,12 +664,9 @@ var  ROOT = "/wh";
                     return isSelect;
                 }
 
-                function addCategory(name,pid){
-                    var name = name.trim();
-                    //var pid = getRealPid(pid);
+                function addCategory(formInfo){
                     var ajURL = '<?php echo addons_url ( 'Shop://GoodsManager/addCateNode');?>';
-                            ajURL =  ajURL.replace('.html','/') + 'name/' + name + '/pid/' + pid ;
-                    var resultData = $.ajax({url:ajURL,async:false});
+                    var resultData = $.ajax({url:ajURL,async:false,data:formInfo,dataType:'json'});
                     if(resultData.responseJSON.info == 'success'){
                         updateAlert('添加成功！','alert-success',2000);
                         Custombox.close()
@@ -688,10 +681,20 @@ var  ROOT = "/wh";
                 }
 
 
-                function addGoods(pid){
-                         console.log(allPerFiles);
-                         var upLoadedList = $("#demoh").zyUpload('getMovebleFiles',true);
-                         var testS = ZYFILE.getAliases(upLoadedList);
+                function addGoods(formInfo){
+                    var ajURL = '<?php echo addons_url ( 'Shop://GoodsManager/addGoods');?>';
+                            var resultData = $.ajax({url:ajURL,async:false,data:formInfo,dataType:'json'});
+                    if(resultData.responseJSON.info == 'success'){
+                        updateAlert('添加成功！','alert-success',2000);
+                        Custombox.close()
+                        goodsData = JSON.parse(resultData.responseJSON.data.CGJson);
+                        categoryData = JSON.parse(resultData.responseJSON.data.CJson);
+                        $('#tg').treegrid({data: goodsData});
+                        $('#tg').treegrid('select', resultData.responseJSON.data.id);
+
+                    }else{
+                        updateAlert('无法添加该类别' + resultData.responseJSON.data,'alert-error',2000);
+                    }
 
                 }
 
@@ -743,6 +746,79 @@ var  ROOT = "/wh";
                 }
 
 
+                function getCateDataWithNone(){
+                    var copyCategoryData = categoryData.slice();
+                    var insertOBJ = {id:'none',text:'----- 无 (不属于任何类别) -----'};
+                    copyCategoryData.splice(0, 0, insertOBJ);
+                    return copyCategoryData;
+                }
+
+                function initZyUpload(){
+                    $("#goods-albums").empty();
+                    $("#goods-albums").zyUpload({
+                        width            :   "440px",                 // 宽度
+                        height           :   "550px",                 // 宽度
+                        itemWidth        :   "120px",                 // 文件项的宽度
+                        itemHeight       :   "100px",                 // 文件项的高度
+                        url              :   "http://upload.qiniu.com/",  // 上传文件的路径
+                        multiple         :   true,                    // 是否可以多个文件上传
+                        dragDrop         :   false,                    // 是否可以拖动上传文件
+                        del              :   true,                    // 是否可以删除文件
+                        finishDel        :   false,  				  // 是否在上传文件完成后删除预览
+                        get7TokenURL     :"<?php echo addons_url ( 'Shop://GoodsManager/get7Token');?>",
+                        /* 外部获得的回调接口 */
+                        onSelect: function(files, allFiles){                    // 选择文件的回调方法
+                            console.info("当前选择了以下文件：");
+                            console.info(files);
+                            console.info("之前没上传的文件：");
+                            console.info(allFiles);
+                        },
+                        onShowedFiles: function(allFiles){
+
+                        },
+                        onDelete: function(file, surplusFiles){                     // 删除一个文件的回调方法
+                            console.info("当前删除了此文件：");
+                            console.info(file);
+                            console.info("当前剩余的文件：");
+                            console.info(surplusFiles);
+                        },
+                        onSuccess: function(file){                    // 文件上传成功的回调方法
+                            console.info("此文件上传成功：");
+                            console.info(file);
+                        },
+                        onFailure: function(file){                    // 文件上传失败的回调方法
+                            console.info("此文件上传失败：");
+                            console.info(file);
+                        },
+                        onComplete: function(responseInfo){           // 上传完成的回调方法
+                            console.info("文件上传完成");
+                            console.info(responseInfo);
+                        }
+                    });
+                }
+
+//----------------------MODAL相关 END -------------------------------------//
+
+
+                function onContextMenu(e,row){
+                    e.preventDefault();
+                    $(this).treegrid('select', row.id);
+                    var cutbn = $('#mm').menu('findItem','取消类别');
+                    if(!row.isCatalog){
+                        $('#mm').menu('disableItem', cutbn.target);
+                    }else{
+                        $('#mm').menu('enableItem', cutbn.target);
+                    }
+
+                    $('#mm').menu('show',{
+                        left: e.pageX,
+                        top: e.pageY
+                    });
+                }
+
+
+
+
 
                 function removeItem(){
                     if(!checkSelect())return;
@@ -765,13 +841,6 @@ var  ROOT = "/wh";
 
                 }
 
-
-                function getCateSelectData(){
-                    var copyCategoryData = categoryData.slice();
-                    var insertOBJ = {id:'none',text:'----- 无 (不属于任何类别) -----'};
-                    copyCategoryData.splice(0, 0, insertOBJ);
-                    return copyCategoryData;
-                }
 
                 function clearUPCata(sid){
                     var ajURL = '<?php echo addons_url ( 'Shop://GoodsManager/clearUPCate');?>';
