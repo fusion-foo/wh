@@ -6,7 +6,7 @@
 // +----------------------------------------------------------------------
 // | Author: 麦当苗儿 <zuojiazi@vip.qq.com> <http://www.zjzit.cn>
 // +----------------------------------------------------------------------
-
+use Qiniu\Auth;
 // OneThink常量定义
 const ONETHINK_VERSION = '1.0.131218';
 const ONETHINK_ADDON_PATH = './Addons/';
@@ -2412,11 +2412,22 @@ function get_category_goods_ary($id = 0){
          $rtAry = getCGARY($id);
          $map ['token'] = get_token ();
          $map ['cate_id'] = 0;
-         $goods = M('shop_goods')->where ( $map )->field(array('cid'=>'id','id'=>'gid' ,'name','market_price' => 'selling','bug_count' => 'sold','view_count' => 'preview','status','like','cate_id' => '_parentId'))->select();
-         if($goods)$rtAry = array_merge($rtAry,$goods);
+         $goods = M('shop_goods')->where ( $map )->field(array('cid'=>'id','id'=>'gid' ,'name','mprice' => 'selling','bug_count' => 'sold','view_count' => 'preview','status','like','cate_id' => '_parentId'))->select();
+
+        if($goods){
+            setGoodsLikeAndStars($goods);
+            $rtAry = array_merge($rtAry,$goods);
+        }
          return $rtAry;
 }
 
+function setGoodsLikeAndStars(&$goods){
+    foreach($goods as $key => $value){
+        $goods[$key]['like'] = get_like_stars(intval($goods[$key]['like']));
+        $goods[$key]['status'] =  $goods[$key]['status'] == '1' ? '在售':'下架';
+    }
+
+}
 
 function getCGARY($id){
     $arr = array();
@@ -2430,10 +2441,7 @@ function getCGARY($id){
                 $map ['token'] = get_token ();
                 $map ['cate_id'] = $nodes['id'];
                 $goods = M('shop_goods')->where ( $map )->field(array('cid'=>'id','id'=>'gid' ,'name','mprice' => 'selling','bug_count' => 'sold','view_count' => 'preview','status','like','cate_id' => '_parentId'))->select();
-                foreach($goods as $key => $value){
-                    $goods[$key]['like'] = get_like_stars(intval($goods[$key]['like']));
-                    $goods[$key]['status'] =  $goods[$key]['status'] == '1' ? '在售':'下架';
-                }
+                setGoodsLikeAndStars($goods);
                 if(count($goods) > 0 || count($nodes['children']) > 0){
                     if(count($nodes['children']) > 0){
                         $nodes['children'] =  getCGARY($nodes['id']);
@@ -2473,4 +2481,11 @@ function get_category_goods_json($id = 0){
 function get_category_json($id = 0){
     $testary = get_category_array($id);
     return json_encode($testary);
+}
+
+function get7Auth(){
+    $accessKey = 'BFdmEMJ4SeJZdnvIOTLo6wMG2M_bjchxoPecIJk7';
+    $secretKey = '1BbubBnjAzoN9uXQKdVY0SPlQt2xq8m24o56OiWP';
+    $auth = new Auth($accessKey, $secretKey);
+    return $auth;
 }

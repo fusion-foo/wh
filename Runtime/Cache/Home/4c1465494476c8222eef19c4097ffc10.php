@@ -168,7 +168,7 @@ var  ROOT = "/wh";
       </ul>
 </div><?php endif; ?>
 <?php if(!empty($normal_tips)): ?><p class="normal_tips"><b class="fa fa-info-circle"></b> <?php echo ($normal_tips); ?></p><?php endif; ?>
-            <?php if($need_datainfo): $__FOR_START_1098418735__=0;$__FOR_END_1098418735__=$ayitem;for($i=$__FOR_START_1098418735__;$i < $__FOR_END_1098418735__;$i+=1){ ?><div class="index_tap total">
+            <?php if($need_datainfo): $__FOR_START_1470692436__=0;$__FOR_END_1470692436__=$ayitem;for($i=$__FOR_START_1470692436__;$i < $__FOR_END_1470692436__;$i+=1){ ?><div class="index_tap total">
         <ul  class="inner" style="background-color:<?php echo ($itemArr[$i]['bgcolor']); ?>;
                                  border:<?php echo ($itemArr[$i]['bgsolid']); ?>">
             <li class="index_tap_item total_fans extra">
@@ -280,6 +280,7 @@ var  ROOT = "/wh";
                                 <span class="error"></span>
                             </div>
 
+
                             <div class="field">
                                 <label class="main">市场价:   ￥ </label>
                                 <input id="goods-mprice-input" name="mprice" type="number" min="0" max="99999">
@@ -298,6 +299,16 @@ var  ROOT = "/wh";
                                 <span class="error"></span>
                             </div>
 
+
+                            <div class="field">
+                                <label class="main">消费方式:</label>
+                                <p class="group">
+                                    <label><input name="cpatterns[]" type="checkbox" value="0" data-idealforms-rules="minoption:1" checked="checked" /> 外卖配送 (外卖人员配送至客户地址) </label>
+                                    <label><input name="cpatterns[]" type="checkbox" value="1" /> 店内消费 (凭消费订单到店内消费) </label>
+                                    <label><input name="cpatterns[]" type="checkbox" value="2" /> 预定自提 (预定时间通知客户到店内自提)</label>
+                                </p>
+                                <span class="error"></span>
+                            </div>
 
                             <!-- Textarea -->
                             <div class="field">
@@ -400,7 +411,8 @@ var  ROOT = "/wh";
                             'goodsname': 'required ajax',
                             'mprice':'required number',
                             'sprice':'required number',
-                            'pawarded':'number'
+                            'pawarded':'number',
+                            'cpatterns[]':'minoption:1'
                         },
                         errors: {
                             'mprice':{
@@ -413,6 +425,9 @@ var  ROOT = "/wh";
                             },
                             'pawarded':{
                                 number: '必须是数字，以积分点数为单位'
+                            },
+                            'cpatterns[]':{
+                                minoption: '至少选中一项'
                             },
                             'goodsname': {
                                 ajax: '正在检查中...',
@@ -430,6 +445,12 @@ var  ROOT = "/wh";
                         return;
                     }
 
+                    if(isFormGoods){
+                        var loadedFiles = ZYFILE.getLoadFiles();
+                        if(loadedFiles && loadedFiles.length > 0)
+                        delFiles(loadedFiles);
+                    }
+
                     $('#cc').combotree('hidePanel');
                     Custombox.close();
                 }
@@ -437,9 +458,9 @@ var  ROOT = "/wh";
                 function openModalHandler(type){
                     var cateFormsInfo = {type:null,catename:null,cateoptions:null};
 
-                    var goodsFormsInfo = {type:null,goodsname:'null',cateoptions:null,
+                    var goodsFormsInfo = {type:null,goodsname:null,cateoptions:null,
                                           mprice:null,sprice:null,pawarded:null,
-                                          brief:null,albums:null,albumsuid:null};
+                                          brief:null,cpattern:null,albums:null,albumsuid:null};
 
 
                     switch(type){
@@ -526,13 +547,7 @@ var  ROOT = "/wh";
                         overlayClose:false,
                         width:modalWidth,
                         open:function(){
-
-
-
                             setComboPanleOnTop();
-
-
-
                             ////修复下拉树型菜单
                             function setComboPanleOnTop(){
                                 currModalFroms.click(function(event){
@@ -542,7 +557,6 @@ var  ROOT = "/wh";
                                     }
                                 });
                             }
-
                         },
                         close:function(){
                             $('#cateSelectDiv').appendTo('#contents');
@@ -553,11 +567,11 @@ var  ROOT = "/wh";
                 }
 
                 function formsSubmitHander(event){
+                         selectTreeItemID = $('#cc').combotree('getValue');
                          currHandFormInfo.cateoptions = getRealCatePid(selectTreeItemID);
                          switch(event.currentTarget.id){
                              case "sumit-cate":
                                  verifyCateSubmit(function(){
-                                     selectTreeItemID = $('#cc').combotree('getValue');
                                      currHandFormInfo.catename = $('#add-cate-input').val().trim();
                                      addCategory(currHandFormInfo);
                                  });
@@ -570,8 +584,16 @@ var  ROOT = "/wh";
                                      currHandFormInfo.sprice = $('#goods-sprice-input').val().trim();
                                      currHandFormInfo.pawarded = $('#goods-pawarded-input').val().trim();
                                      currHandFormInfo.brief = $('#goods-brief-input').val().trim();
-                                     currHandFormInfo.albums = getAblumsData();;
+                                     currHandFormInfo.albums = getAblumsData();
                                      currHandFormInfo.albumsuid = albumsUID;
+
+                                     var cp = $("input[name='cpatterns[]']:checked");
+                                     var tempAry = [];
+                                     for(var i = 0; i < cp.length; i++){
+                                         var citem = cp[i];
+                                         tempAry.push(citem.value);
+                                     }
+                                     currHandFormInfo.cpattern = tempAry.join();
                                      addGoods(currHandFormInfo);
 
                                      function getAblumsData(){
@@ -588,8 +610,8 @@ var  ROOT = "/wh";
                     var erros = $('#addCateforms').idealforms('get:invalid');
                     var tipStr;
                     if(erros.length > 0){
-                        tipStr = '填写信息不完整或无效，请重新填写！';
-                        updateAlert(tipStr,'alert-warn',5000);
+                        tipStr = '填写 '+ getFormErrFieldStr(erros) +'信息无效或不完整，请重新填写！';
+                        updateAlert(tipStr,'alert-error',5000);
                     }else{
                         passHandler(0);
                     }
@@ -607,9 +629,9 @@ var  ROOT = "/wh";
                        var erros = $('#addGoodsforms').idealforms('get:invalid');
 
                        if(erros.length > 0){
-                           tipStr = '填写信息不完整或无效，请重新填写！';
+                           tipStr = '填写 '+ getFormErrFieldStr(erros) +'信息无效或不完整，请重新填写！';
                            handler = null;
-                           updateAlert(tipStr,'alert-warn',5000);
+                           updateAlert(tipStr,'alert-error',5000);
                        }else{
 
                            if(upFiles.length > 0){
@@ -651,6 +673,16 @@ var  ROOT = "/wh";
                     }else{
 
                     }
+                }
+
+                function getFormErrFieldStr(errorInfo){
+                         var retStr = '';
+                         for (x = 0; x < errorInfo.length; x++){
+                             var errText = errorInfo[x].innerText;
+                                 errText = errText.substring(0,errText.indexOf(':'));
+                                 retStr += '"' + errText + '" ';
+                         }
+                         return retStr;
                 }
 
                 function checkSelect(){
@@ -781,6 +813,10 @@ var  ROOT = "/wh";
                             console.info(file);
                             console.info("当前剩余的文件：");
                             console.info(surplusFiles);
+                            if(file.hasOwnProperty('aliases')){
+                                var delFile = [file];
+                                delFiles(delFile);
+                            }
                         },
                         onSuccess: function(file){                    // 文件上传成功的回调方法
                             console.info("此文件上传成功：");
@@ -795,6 +831,28 @@ var  ROOT = "/wh";
                             console.info(responseInfo);
                         }
                     });
+                }
+
+                function delFiles(files){
+                    var delStr = getFilesStr(files);
+                    var data = {keys:delStr,albumsuid:albumsUID};
+                    var ajURL = '<?php echo addons_url ( 'Shop://GoodsManager/delFiles');?>';
+                            var resultData = $.ajax({url:ajURL,async:false,data:data,dataType:'json'});
+
+                    if(resultData.responseJSON.info == 'success'){
+                        updateAlert('删除图片成功！','alert-success',2000);
+                    }else{
+                        updateAlert('删除图片失败','alert-error',2000);
+                    }
+
+                    function getFilesStr(files){
+                        var tempAry = [];
+                        for(var i = 0; i < files.length; i++){
+                            var file = files[i];
+                            tempAry.push(file.aliases);
+                        }
+                        return tempAry.join();
+                    }
                 }
 
 //----------------------MODAL相关 END -------------------------------------//

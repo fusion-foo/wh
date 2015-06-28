@@ -362,6 +362,7 @@
 						self.funSetStatusInfo(files);
 						console.info("剩下的文件");
 						console.info(files);
+                        para.onDelete(file);
 					},
 					onProgress: function(file, loaded, total) {
 						var eleProgress = $("#uploadProgress_" + file.index), percent = (loaded / total * 100).toFixed(2) + '%';

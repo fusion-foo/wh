@@ -9,6 +9,7 @@
 namespace Addons\Shop\Controller;
 use Home\Controller\AddonsController;
 use Qiniu\Auth;
+use Qiniu\Storage\BucketManager;
 
 class GoodsManagerController extends BaseController{
 
@@ -59,13 +60,65 @@ class GoodsManagerController extends BaseController{
     }
 
     public function get7Token(){
-        $accessKey = 'BFdmEMJ4SeJZdnvIOTLo6wMG2M_bjchxoPecIJk7';
-        $secretKey = '1BbubBnjAzoN9uXQKdVY0SPlQt2xq8m24o56OiWP';
-        $auth = new Auth($accessKey, $secretKey);
-
+        $auth = get7Auth();
         $bucket = 'weixin';
         $token = $auth->uploadToken($bucket, null, 3600);
         echo $token;
+    }
+
+    public function delFiles(){
+           $auth = get7Auth();
+           $bucketMgr = new BucketManager($auth);
+           $bucket = 'weixin';
+           $keys = I('keys');
+           $albumsuid = I('albumsuid');
+           $map['albumsuid'] = $albumsuid;
+           $map ['token'] = get_token ();
+           $keys =  explode(",", $keys);
+           $errs = [];
+
+
+
+           foreach($keys as $key=>$val){
+               $err = $bucketMgr->delete($bucket, $val);
+               if($err)$errs[] = $err;
+           }
+
+           if (count($errs) > 0) {
+                $data['errs'] = $errs;
+                $resulData['info'] = 'error';
+                $resulData['data'] = $data;
+                $this->ajaxReturn($resulData);
+           } else {
+               $goodsModel = M("shop_goods");
+               $hasOne = $goodsModel->where($map)->select();
+
+               if($hasOne){
+                   $albumsStr = $goodsModel->where($map)->field('albums')->select();
+                   $albums = explode("|-|", $albumsStr);
+                   $afterDelAlbums = array_diff($albums,$keys);
+                   $data['albums'] = join('|-|',$afterDelAlbums);
+                   $isSaveGoods = $goodsModel->where($map)->data($data)->save();
+                   if($isSaveGoods){
+                       $resulData['info'] = 'success';
+                       $resulData['data'] = '成功删除图片';
+                       $this->ajaxReturn($resulData);
+                   }else{
+                       $data['errs'] = $errs;
+                       $resulData['info'] = 'error';
+                       $resulData['data'] = $data;
+                       $this->ajaxReturn($resulData);
+                   }
+
+               }else{
+                   $resulData['info'] = 'success';
+                   $resulData['data'] = '成功删除图片';
+                   $this->ajaxReturn($resulData);
+               }
+           }
+
+
+
     }
 
     public function addCateNode(){
@@ -132,6 +185,8 @@ class GoodsManagerController extends BaseController{
             $data['pawarded'] = I('pawarded');
             $data['brief']    = I('brief');
             $data['albums']   = I('albums');
+            $data['albumsuid']   = I('albumsuid');
+            $data['cpattern'] = I('cpattern');
             $data['cTime']    = time();
 
 

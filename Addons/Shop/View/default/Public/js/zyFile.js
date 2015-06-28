@@ -225,6 +225,14 @@ var ZYFILE = {
             return this.perUploadFile;
         },
 
+        getLoadFiles:function(){
+            var retAay = [];
+            $.each(this.perUploadFile,function(i, item){
+                if(item.hasOwnProperty('aliases'))retAay.push(item);
+            });
+            return retAay;
+        },
+
         getAliases:function(files){
             var retAay = [];
             $.each(files,function(i, item){
