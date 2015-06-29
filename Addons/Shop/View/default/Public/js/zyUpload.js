@@ -265,6 +265,8 @@
                     uploadFile : [],  			  // 需要上传的文件数组
                     lastUploadFile : [],          // 上一次选择的文件数组，方便继续上传使用
                     perUploadFile : [],           // 存放永久的文件数组，方便删除使用
+                    fileNum : 0,                  // 代表文件总个数，因为涉及到继续添加，所以下一次添加需要在它的基础上添加索引
+                    isUploding:false,
 					filterFile: function(files) {
 						// 过滤合格的文件
 						return self.funFilterEligibleFile(files);

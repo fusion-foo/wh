@@ -67,9 +67,6 @@ class GoodsManagerController extends BaseController{
     }
 
     public function delFiles(){
-           $auth = get7Auth();
-           $bucketMgr = new BucketManager($auth);
-           $bucket = 'weixin';
            $keys = I('keys');
            $albumsuid = I('albumsuid');
            $map['albumsuid'] = $albumsuid;
@@ -77,11 +74,10 @@ class GoodsManagerController extends BaseController{
            $keys =  explode(",", $keys);
            $errs = [];
 
+           $rtInfo = $this->delItemPics($keys);
 
-
-           foreach($keys as $key=>$val){
-               $err = $bucketMgr->delete($bucket, $val);
-               if($err)$errs[] = $err;
+           foreach($rtInfo[0] as $key => $value){
+               if($value['code'] != 200)$errs[] = $value['code'];
            }
 
            if (count($errs) > 0) {
@@ -95,9 +91,9 @@ class GoodsManagerController extends BaseController{
 
                if($hasOne){
                    $albumsStr = $goodsModel->where($map)->field('albums')->select();
-                   $albums = explode("|-|", $albumsStr);
+                   $albums = explode(",", $albumsStr);
                    $afterDelAlbums = array_diff($albums,$keys);
-                   $data['albums'] = join('|-|',$afterDelAlbums);
+                   $data['albums'] = join(',',$afterDelAlbums);
                    $isSaveGoods = $goodsModel->where($map)->data($data)->save();
                    if($isSaveGoods){
                        $resulData['info'] = 'success';
@@ -296,8 +292,71 @@ class GoodsManagerController extends BaseController{
 
     }
 
-    public function remove(){
+    public function delItem(){
+        $id = i('cid');
+        $isGoods = I('isGoods');
 
+        if($isGoods == 'true'){
+            $map ['token'] = get_token ();
+            $map['cid'] = $id;
+            $delGoods = M('shop_goods')->where($map)->select();
+            $this->delGoodsAlbums($delGoods);
+            $delGoodsNum = M('shop_goods')->where($map)->delete();
+            if(count($delGoodsNum) > 0)$isDel = true;
+        }else{
+            $goodsmap ['token'] =  $catemap ['token'] = get_token ();
+            $goodsmap ['cate_id'] = $catemap['id'] = $id;
+            $delGoods = M('shop_goods')->where($goodsmap)->select();
+            $this->delGoodsAlbums($delGoods);
+
+            $delCateNum = M('shop_category')->where($catemap)->delete();
+            $delGoodsNum = M('shop_goods')->where($goodsmap)->delete();
+
+            if($delGoodsNum > 0){
+                $isDel = $delCateNum && $delGoodsNum;
+            }else{
+                $isDel = $delCateNum;
+            }
+
+        }
+
+
+
+
+
+
+        $data['CGJson'] = get_category_goods_json();
+        $data['CJson'] = get_category_json();
+        $resulData['info'] = $isDel ? 'success':'error';
+        $resulData['data'] = $data;
+        $this->ajaxReturn($resulData);
+    }
+
+
+    private function delGoodsAlbums($delGoods){
+        //删除图片
+        if(count($delGoods) > 0){
+            $albums = '';
+            foreach($delGoods as $key=>$val){
+                $astr = $val['albums'];
+                $albums = $albums . ',' .$astr;
+            }
+            $albums = substr($albums,1,strlen($albums));
+            $albums = explode(',',$albums);
+
+            $this->delItemPics($albums);
+        }
+    }
+
+
+    private function delItemPics($files){
+            $auth = get7Auth();
+            $bucket = 'weixin';
+            $bucketMgr = new BucketManager($auth);
+
+            $batchDel= $bucketMgr->buildBatchDelete($bucket,$files);
+            $rtInfo = $bucketMgr->batch($batchDel);
+            return $rtInfo;
     }
 
     public function lists(){

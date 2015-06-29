@@ -168,7 +168,7 @@ var  ROOT = "/wh";
       </ul>
 </div><?php endif; ?>
 <?php if(!empty($normal_tips)): ?><p class="normal_tips"><b class="fa fa-info-circle"></b> <?php echo ($normal_tips); ?></p><?php endif; ?>
-            <?php if($need_datainfo): $__FOR_START_1470692436__=0;$__FOR_END_1470692436__=$ayitem;for($i=$__FOR_START_1470692436__;$i < $__FOR_END_1470692436__;$i+=1){ ?><div class="index_tap total">
+            <?php if($need_datainfo): $__FOR_START_1342226591__=0;$__FOR_END_1342226591__=$ayitem;for($i=$__FOR_START_1342226591__;$i < $__FOR_END_1342226591__;$i+=1){ ?><div class="index_tap total">
         <ul  class="inner" style="background-color:<?php echo ($itemArr[$i]['bgcolor']); ?>;
                                  border:<?php echo ($itemArr[$i]['bgsolid']); ?>">
             <li class="index_tap_item total_fans extra">
@@ -190,7 +190,7 @@ var  ROOT = "/wh";
                 <div style="padding:5px;background:#fafafa;width:1008px;border:1px solid #ccc">
                     <a id="adddbtn" href="#" class="easyui-linkbutton" plain="true" iconCls="icon-add" onclick="openModalHandler('addgoods')">添加商品</a>
                     <a id="addcbtn" href="#" class="easyui-linkbutton" plain="true" iconCls="icon-add" onclick="openModalHandler('addcate')">添加类别</a>
-                    <a id="delbtn" href="#" class="easyui-linkbutton" plain="true" iconCls="icon-remove" onclick="removeItem()">移除</a>
+                    <a id="delbtn" href="#" class="easyui-linkbutton" plain="true" iconCls="icon-remove" onclick="delItem()">删除</a>
                     <a id="edtbtn" href="#" class="easyui-linkbutton" plain="true" iconCls="icon-edit">编辑</a>
                     <a id="expbtn" href="#" class="easyui-linkbutton" data-options="" >展开全部</a>
                     <a id="clsbtn" href="#" class="easyui-linkbutton" data-options="" >合闭全部</a>
@@ -220,7 +220,6 @@ var  ROOT = "/wh";
                         <th data-options="field:'selling',width:80,editor:'datebox'">售价 (元)</th>
                         <th data-options="field:'sales',width:80,editor:'datebox'">今日销量 (元|件)</th>
                         <th data-options="field:'sold',width:80,editor:'datebox'">已售 (件)</th>
-                        <th data-options="field:'preview',width:80,editor:'datebox'">预览量 (次)</th>
                         <th data-options="field:'status',width:50,editor:'datebox'">状态</th>
                         <th data-options="field:'like',width:120,editor:'datebox'">用户评分 (星)</th>
                     </tr>
@@ -231,7 +230,7 @@ var  ROOT = "/wh";
             <div id="mm" class="easyui-menu" style="width:120px;">
                 <div onclick="exitCate(false)" data-options="iconCls:'icon-undo'">退出所在类别</div>
                 <div onclick="exitCate(true)" data-options="iconCls:'icon-clear'">取消类别</div>
-                <div onclick="" data-options="iconCls:'icon-remove'">移除</div>
+                <div onclick="delItem()" data-options="iconCls:'icon-remove'">删除</div>
                 <div class="menu-sep"></div>
                 <div onclick="collapseItem()">合闭</div>
                 <div onclick="expanItem()">展开</div>
@@ -360,6 +359,7 @@ var  ROOT = "/wh";
                 var currHandFormInfo;
                 var upFiles = ZYFILE.getUpFileNum();
                 var allPerFiles = ZYFILE.getAllFiles();
+                var isEditForms = false;
 
                 $.ajaxSetup({
                     cache: false
@@ -447,7 +447,7 @@ var  ROOT = "/wh";
 
                     if(isFormGoods){
                         var loadedFiles = ZYFILE.getLoadFiles();
-                        if(loadedFiles && loadedFiles.length > 0)
+                        if(loadedFiles && loadedFiles.length > 0 && !isEditForms)
                         delFiles(loadedFiles);
                     }
 
@@ -468,6 +468,7 @@ var  ROOT = "/wh";
                             cateFormsInfo.type = type;
                             cateFormsInfo.cateoptions = getSetSelectValue();
                             currHandFormInfo = cateFormsInfo;
+                            isEditForms = false;
                             openModal('cate',cateFormsInfo);
                             break
 
@@ -475,14 +476,17 @@ var  ROOT = "/wh";
                             goodsFormsInfo.type = type;
                             goodsFormsInfo.cateoptions = getSetSelectValue();
                             currHandFormInfo = goodsFormsInfo;
+                            isEditForms = false;
                             openModal('goods',goodsFormsInfo);
                             break
 
                         case 'editcate' :
+                            isEditForms = true;
                             currHandFormInfo = cateFormsInfo;
                             break
 
                         case 'editgoods':
+                            isEditForms = true;
                             currHandFormInfo = goodsFormsInfo;
                             break
                     }
@@ -492,9 +496,9 @@ var  ROOT = "/wh";
                         var pid = getRealCatePid(selectTreeItemID);
                         var cateItem = getCateItemByID(pid,categoryData);
                         if(cateItem){
-                            return cateItem.name;
+                            return cateItem.id;
                         }else{
-                            return cateSelectData[0].text;
+                            return cateSelectData[0].id;
                         }
                     }
 
@@ -599,7 +603,7 @@ var  ROOT = "/wh";
                                      function getAblumsData(){
                                          var upLoadedList = $("#goods-albums").zyUpload('getMovebleFiles',true);
                                          var upLoadAry = ZYFILE.getAliases(upLoadedList);
-                                         return upLoadAry.join('|-|');
+                                         return upLoadAry.join();
                                      }
                                  });
                                  break;
@@ -687,7 +691,7 @@ var  ROOT = "/wh";
 
                 function checkSelect(){
                     var isSelect = false;
-                    if (selectTreeItemID == undefined){
+                    if (this.selectTreeItemID == 0){
                         updateAlert('请选中分类条目后再操作...！','alert-error',2000);
                         isSelect = false;
                     }else{
@@ -721,17 +725,16 @@ var  ROOT = "/wh";
                         Custombox.close()
                         goodsData = JSON.parse(resultData.responseJSON.data.CGJson);
                         categoryData = JSON.parse(resultData.responseJSON.data.CJson);
+                        //$('#tg').treegrid('unselect',selectTreeItemID);
                         $('#tg').treegrid({data: goodsData});
-                        $('#tg').treegrid('select', resultData.responseJSON.data.id);
+                        $('#tg').treegrid('reload');
+                        //$('#tg').treegrid('select', resultData.responseJSON.data.id);
 
                     }else{
                         updateAlert('无法添加该类别' + resultData.responseJSON.data,'alert-error',2000);
                     }
 
                 }
-
-
-
 
                 function getRealCatePid(pid){
                     var returnPid = pid;
@@ -780,7 +783,8 @@ var  ROOT = "/wh";
 
                 function getCateDataWithNone(){
                     var copyCategoryData = categoryData.slice();
-                    var insertOBJ = {id:'none',text:'----- 无 (不属于任何类别) -----'};
+                    var noneStr = '----- 无 (不属于任何类别) -----';
+                    var insertOBJ = {id:'0',text:noneStr,name:noneStr};
                     copyCategoryData.splice(0, 0, insertOBJ);
                     return copyCategoryData;
                 }
@@ -878,8 +882,26 @@ var  ROOT = "/wh";
 
 
 
-                function removeItem(){
+                function delItem(){
                     if(!checkSelect())return;
+
+                    var item = $('#tg').treegrid('getSelected');
+                    var data = {cid:item.id,isGoods:!item.isCatalog};
+                    var ajURL = '<?php echo addons_url ( 'Shop://GoodsManager/delItem');?>';
+                            var resultData = $.ajax({url:ajURL,async:false,data:data,dataType:'json'});
+
+                    if(resultData.responseJSON.info == 'success'){
+                        updateAlert('删除成功！','alert-success',2000);
+                        goodsData = JSON.parse(resultData.responseJSON.data.CGJson);
+                        categoryData = JSON.parse(resultData.responseJSON.data.CJson);
+                        $('#tg').treegrid('unselect',selectTreeItemID);
+                        $('#tg').treegrid({data: goodsData});
+                        selectTreeItemID = 0;
+                    }else{
+                        updateAlert('删除失败','alert-error',2000);
+                    }
+
+                    this.selectTreeItemID = 0;
                 }
 
 
