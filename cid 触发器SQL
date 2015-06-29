@@ -1,0 +1,28 @@
+DELIMITER $
+create trigger setGoodsCid before insert
+on wp_shop_goods  for each row
+begin
+set New.cid = nextval('cid');
+end$
+DELIMITER ;
+
+
+DELIMITER $
+create trigger setCateCid before insert
+on wp_shop_category  for each row
+begin
+set New.id = _nextval('cid');
+end$
+DELIMITER ;
+
+DELIMITER //  
+create function _nextval(n varchar(50)) returns integer   
+begin  
+declare _cur int;  
+set _cur=(select current_value from wp_com_sequence where name= n);  
+update wp_com_sequence  
+ set current_value = _cur + increment  
+ where name=n ;  
+return _cur;  
+end;  
+//  
