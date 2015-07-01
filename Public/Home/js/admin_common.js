@@ -164,6 +164,10 @@
         // content.animate({paddingTop:'-=55'},200);
     }
 
+    window.closeAlert = function (){
+           closeAlert();
+    }
+
     window.updateAlert = function (text,c,dely,dialog,handler) {
         var modal_z =  $('.custombox-overlay.custombox-overlay-fadein.custombox-overlay-default').css('z-index');
         top_alert.css('z-index',modal_z + 5);
@@ -195,8 +199,15 @@
             alert_dialog.css('display','inline-block');
             cls_btn.css('display','none');
             if(handler){
-                yse_btn.click(function(){handler.call(null,true);closeAlert()});
-                cancel_btn.click(function(){handler.call(null,false);});
+                yse_btn[0].handler = handler;
+                cancel_btn[0].handler = handler;
+                yse_btn.click(function(event){
+                    event.currentTarget.handler.call(null,true);
+                    closeAlert();
+                });
+                cancel_btn.click(function(event){
+                    event.currentTarget.handler.call(null,false);
+                });
             }
         }else{
             cls_btn.css('display','inline-block');

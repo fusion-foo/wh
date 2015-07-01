@@ -168,7 +168,7 @@ var  ROOT = "/wh";
       </ul>
 </div><?php endif; ?>
 <?php if(!empty($normal_tips)): ?><p class="normal_tips"><b class="fa fa-info-circle"></b> <?php echo ($normal_tips); ?></p><?php endif; ?>
-            <?php if($need_datainfo): $__FOR_START_1342226591__=0;$__FOR_END_1342226591__=$ayitem;for($i=$__FOR_START_1342226591__;$i < $__FOR_END_1342226591__;$i+=1){ ?><div class="index_tap total">
+            <?php if($need_datainfo): $__FOR_START_2113912906__=0;$__FOR_END_2113912906__=$ayitem;for($i=$__FOR_START_2113912906__;$i < $__FOR_END_2113912906__;$i+=1){ ?><div class="index_tap total">
         <ul  class="inner" style="background-color:<?php echo ($itemArr[$i]['bgcolor']); ?>;
                                  border:<?php echo ($itemArr[$i]['bgsolid']); ?>">
             <li class="index_tap_item total_fans extra">
@@ -191,7 +191,7 @@ var  ROOT = "/wh";
                     <a id="adddbtn" href="#" class="easyui-linkbutton" plain="true" iconCls="icon-add" onclick="openModalHandler('addgoods')">添加商品</a>
                     <a id="addcbtn" href="#" class="easyui-linkbutton" plain="true" iconCls="icon-add" onclick="openModalHandler('addcate')">添加类别</a>
                     <a id="delbtn" href="#" class="easyui-linkbutton" plain="true" iconCls="icon-remove" onclick="delItem()">删除</a>
-                    <a id="edtbtn" href="#" class="easyui-linkbutton" plain="true" iconCls="icon-edit">编辑</a>
+                    <a id="edtbtn" href="#" class="easyui-linkbutton" plain="true" iconCls="icon-edit" onclick="openModalHandler('edit')">编辑</a>
                     <a id="expbtn" href="#" class="easyui-linkbutton" data-options="" >展开全部</a>
                     <a id="clsbtn" href="#" class="easyui-linkbutton" data-options="" >合闭全部</a>
 
@@ -380,11 +380,15 @@ var  ROOT = "/wh";
                         data: goodsData
                     });
 
+                    $('#tg').treegrid({ onDblClickRow: function (row) {
+                        //console.log(row)
+                        edit(row.id,row.isCatalog);
+                    }});
+
                     $('#tg').treegrid({ onSelect: function (index, row) {
                         var rows = $('#tg').treegrid('getSelected');
                         if (rows)selectTreeItemID = rows.id;
                     }});
-
 
 
                     $('#tg').treegrid({ onDrop: function (targetRow,sourceRow,point) {
@@ -455,8 +459,9 @@ var  ROOT = "/wh";
                     Custombox.close();
                 }
 
+
                 function openModalHandler(type){
-                    var cateFormsInfo = {type:null,catename:null,cateoptions:null};
+                    var cateFormsInfo = {type:null,id:null,catename:null,cateoptions:null};
 
                     var goodsFormsInfo = {type:null,goodsname:null,cateoptions:null,
                                           mprice:null,sprice:null,pawarded:null,
@@ -480,15 +485,56 @@ var  ROOT = "/wh";
                             openModal('goods',goodsFormsInfo);
                             break
 
-                        case 'editcate' :
+                        case 'edit' :
                             isEditForms = true;
-                            currHandFormInfo = cateFormsInfo;
+                            var selectItem = $('#tg').treegrid('getSelected');
+                            var cid = selectItem.id
+                            var isCatelog = selectItem.isCatalog;
+                            var itemInfo = getItemInfo(cid,isCatelog);
+                            if(!itemInfo){
+                                updateAlert('无法获取信息以编辑！','alert-error',2000);
+                                return;
+                            };
+                            if(isCatelog){
+                                currHandFormInfo = cateFormsInfo;
+                                cateFormsInfo.type = 'cate';
+                                cateFormsInfo.id = itemInfo.id;
+                                cateFormsInfo.catename = itemInfo.name;
+                                cateFormsInfo.cateoptions = itemInfo.pid;
+                                openModal('cate',cateFormsInfo);
+                            }else{
+                                currHandFormInfo = goodsFormsInfo;
+                                goodsFormsInfo.type = 'goods';
+                                goodsFormsInfo.id = itemInfo.id;
+                                goodsFormsInfo.goodsname = itemInfo.name;
+                                goodsFormsInfo.cateoptions = itemInfo.cate_id;
+                                goodsFormsInfo.mprice = itemInfo.mprice;
+                                goodsFormsInfo.sprice = itemInfo.sprice;
+                                goodsFormsInfo.pawarded = itemInfo.pawarded;
+                                goodsFormsInfo.brief = itemInfo.brief;
+                                goodsFormsInfo.cpattern = itemInfo.cpattern;
+                                goodsFormsInfo.albums = itemInfo.albums;
+                                goodsFormsInfo.albumsuid = itemInfo.albumsuid;
+                                openModal('goods',goodsFormsInfo);
+                            }
+
+
                             break
 
-                        case 'editgoods':
-                            isEditForms = true;
-                            currHandFormInfo = goodsFormsInfo;
-                            break
+
+                    }
+
+
+
+
+                    function getItemInfo(cid,isCatalog){
+                        var ajURL = '<?php echo addons_url ( 'Shop://GoodsManager/getItemInfo');?>';
+                                var resultData = $.ajax({url:ajURL,async:false,data:{cid:cid,isCatalog:isCatalog}});
+                        if(resultData.responseJSON.info == 'success'){
+                            return resultData.responseJSON.data[0];
+                        }else{
+                            return false;
+                        }
                     }
 
                     function getSetSelectValue(){
@@ -534,12 +580,24 @@ var  ROOT = "/wh";
                             $('#cateSelectDiv').insertAfter('#goods-name');
                             $('#cateSelectDiv').css('display','block');
 
-                            //设置表单信息
+                            //设置表单信息 $("input[name='items']:checked").val();
                             if(formsInfo.goodsname)currModalFroms.find('#goods-name-input').val(formsInfo.goodsname);
                             if(formsInfo.mprice)currModalFroms.find('#goods-mprice-input').val(formsInfo.mprice);
                             if(formsInfo.sprice)currModalFroms.find('#goods-sprice-input').val(formsInfo.sprice);
                             if(formsInfo.pawarded)currModalFroms.find('#goods-pawarded-input').val(formsInfo.pawarded);
+                            //if(formsInfo.cpattern)currModalFroms.find('#input[name="cpatterns[]"]').val(formsInfo.cpattern)
                             if(formsInfo.brief)currModalFroms.find('#goods-brief-input').val(formsInfo.brief);
+                            if(formsInfo.cpattern){
+                                var cp = $("input[name='cpatterns[]']");
+                                var cpatternAry = formsInfo.cpattern.split(',');
+                                for(x in cpatternAry){
+                                    var index = cpatternAry[x];
+                                    var citem = cp[parseInt(index)];
+                                    citem.checked = "checked";
+                                }
+                                console.log('fdfd');
+                            }
+
                             break
                     }
 
@@ -709,7 +767,7 @@ var  ROOT = "/wh";
                         goodsData = JSON.parse(resultData.responseJSON.data.CGJson);
                         categoryData = JSON.parse(resultData.responseJSON.data.CJson);
                         $('#tg').treegrid({data: goodsData});
-                        $('#tg').treegrid('select', resultData.responseJSON.data.id);
+                        //$('#tg').treegrid('select', resultData.responseJSON.data.id);
 
                     }else{
                         updateAlert('无法添加该类别' + resultData.responseJSON.data,'alert-error',2000);
@@ -885,37 +943,41 @@ var  ROOT = "/wh";
                 function delItem(){
                     if(!checkSelect())return;
 
-                    var item = $('#tg').treegrid('getSelected');
-                    var data = {cid:item.id,isGoods:!item.isCatalog};
-                    var ajURL = '<?php echo addons_url ( 'Shop://GoodsManager/delItem');?>';
-                            var resultData = $.ajax({url:ajURL,async:false,data:data,dataType:'json'});
+                    updateAlert('删除商品或类后，将不可恢复。是否确定删除？','alert-warn',5000,true,alertHandler);
 
-                    if(resultData.responseJSON.info == 'success'){
-                        updateAlert('删除成功！','alert-success',2000);
-                        goodsData = JSON.parse(resultData.responseJSON.data.CGJson);
-                        categoryData = JSON.parse(resultData.responseJSON.data.CJson);
-                        $('#tg').treegrid('unselect',selectTreeItemID);
-                        $('#tg').treegrid({data: goodsData});
-                        selectTreeItemID = 0;
-                    }else{
-                        updateAlert('删除失败','alert-error',2000);
+                    function alertHandler(t){
+                             if(t){
+                                 delNow();
+                             }else{
+                                 closeAlert();
+                             }
                     }
 
-                    this.selectTreeItemID = 0;
+                    function delNow(){
+                        var item = $('#tg').treegrid('getSelected');
+                        var data = {cid:item.id,isGoods:!item.isCatalog};
+                        var ajURL = '<?php echo addons_url ( 'Shop://GoodsManager/delItem');?>';
+                                var resultData = $.ajax({url:ajURL,async:false,data:data,dataType:'json'});
+
+                        if(resultData.responseJSON.info == 'success'){
+                            updateAlert('删除成功！','alert-success',2000);
+                            goodsData = JSON.parse(resultData.responseJSON.data.CGJson);
+                            categoryData = JSON.parse(resultData.responseJSON.data.CJson);
+                            $('#tg').treegrid('unselect',selectTreeItemID);
+                            $('#tg').treegrid({data: goodsData});
+                            selectTreeItemID = 0;
+                        }else{
+                            updateAlert('删除失败','alert-error',2000);
+                        }
+
+                        this.selectTreeItemID = 0;
+                    }
+
+
                 }
 
 
-                function edit(){
-                    if (selectTreeItemID != undefined){
-                        $('#tg').treegrid('select', selectTreeItemID);
-                        return;
-                    }
-                    var row = $('#tg').treegrid('getSelected');
-                    if (row){
-                        selectTreeItemID = row.id
-                        $('#tg').treegrid('beginEdit', selectTreeItemID);
-                    }
-                }
+
 
                 function save(){
 

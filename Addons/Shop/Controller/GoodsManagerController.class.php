@@ -76,8 +76,8 @@ class GoodsManagerController extends BaseController{
 
            $rtInfo = $this->delItemPics($keys);
 
-           foreach($rtInfo[0] as $key => $value){
-               if($value['code'] != 200)$errs[] = $value['code'];
+           foreach($rtInfo as $key => $value){
+               if($value[1])$errs[] = $value[1];
            }
 
            if (count($errs) > 0) {
@@ -115,6 +115,34 @@ class GoodsManagerController extends BaseController{
 
 
 
+    }
+
+    public function getItemInfo(){
+           $map ['token'] = get_token ();
+           $isCatelog = I('isCatalog');
+           $model = null;
+           $filedStr = '';
+           if($isCatelog){
+               $map ['id'] =  I('cid');
+               $model = M("shop_category");
+               $filedStr = 'id,name,pid,state';
+           }else{
+               $map ['cid'] =  I('cid');
+               $model = M("shop_goods");
+               $filedStr = 'id,name,cate_id,mprice,sprice,pawarded,brief,albums,albumsuid,cpattern';
+           }
+
+           $hasOne = $model->where($map)->field($filedStr)->select();
+
+           if($hasOne){
+               $resulData['info'] = 'success';
+               $resulData['data'] = $hasOne;
+               $this->ajaxReturn($resulData);
+           }else{
+               $resulData['info'] = 'erroe';
+               $resulData['data'] = '无法获取指定信息.';
+               $this->ajaxReturn($resulData);
+           }
     }
 
     public function addCateNode(){
@@ -177,7 +205,6 @@ class GoodsManagerController extends BaseController{
             $data['cate_id'] = $pid;
             $data['mprice']   = I('mprice');
             $data['sprice']   = I('sprice');
-            $data['mprice']   = I('mprice');
             $data['pawarded'] = I('pawarded');
             $data['brief']    = I('brief');
             $data['albums']   = I('albums');
