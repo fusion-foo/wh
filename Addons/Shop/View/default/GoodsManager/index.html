@@ -15,7 +15,7 @@
     <script type="text/javascript" src="{:ADDON_PUBLIC_PATH}/js/jquery.easyui.min.js"></script>
     <script type="text/javascript" src="{:ADDON_PUBLIC_PATH}/js/custombox.min.js"></script>
     <script type="text/javascript" src="{:ADDON_PUBLIC_PATH}/js/treegrid-dnd.js"></script>
-    <script type="text/javascript" src="{:ADDON_PUBLIC_PATH}/js/jquery.idealforms.js"></script>
+    <script type="text/javascript" src="{:ADDON_PUBLIC_PATH}/js/jquery.idealforms.min.js"></script>
     <script type="text/javascript" src="{:ADDON_PUBLIC_PATH}/js/jquery.idealforms.i18n.ch.js"></script>
     <script type="text/javascript" src="{:ADDON_PUBLIC_PATH}/js/Sortable.js"></script>
 
@@ -89,7 +89,7 @@
                 <button type="button" class="easyui-linkbutton" style="position: absolute; top: 5px;right: 5px;" onclick="closModal();">
                     <span>&times;</span><span class="sr-only">Close</span>
                 </button>
-                <h4 class="modal-title">添加类别</h4>
+                <h4 class="modal-title"></h4>
                 <div class="modal-text">
                     <form id="addCateforms" class="idealforms" novalidate autocomplete="off" action="/" method="post">
                             <div id="cate-name-div" class="field">
@@ -113,7 +113,7 @@
                 <button type="button" class="easyui-linkbutton" style="position: absolute; top: 5px;right: 5px;" onclick="closModal(event,true);">
                     <span>&times;</span><span class="sr-only">Close</span>
                 </button>
-                <h4 class="modal-title">添加商品</h4>
+                <h4 class="modal-title"></h4>
                 <div class="modal-text">
 
                     <form id="addGoodsforms" class="idealforms" novalidate autocomplete="off" action="/" method="post">
@@ -334,6 +334,7 @@
                             cateFormsInfo.cateoptions = getSetSelectValue();
                             currHandFormInfo = cateFormsInfo;
                             isEditForms = false;
+                            $('.modal-title').text('添加类别')
                             openModal('cate',cateFormsInfo);
                             break
 
@@ -342,6 +343,7 @@
                             goodsFormsInfo.cateoptions = getSetSelectValue();
                             currHandFormInfo = goodsFormsInfo;
                             isEditForms = false;
+                            $('.modal-title').text('添加商品')
                             openModal('goods',goodsFormsInfo);
                             break
 
@@ -361,6 +363,7 @@
                                 cateFormsInfo.id = itemInfo.id;
                                 cateFormsInfo.catename = itemInfo.name;
                                 cateFormsInfo.cateoptions = itemInfo.pid;
+                                $('.modal-title').text('编辑类别');
                                 openModal('cate',cateFormsInfo);
                             }else{
                                 currHandFormInfo = goodsFormsInfo;
@@ -375,6 +378,7 @@
                                 goodsFormsInfo.cpattern = itemInfo.cpattern;
                                 goodsFormsInfo.albums = itemInfo.albums;
                                 goodsFormsInfo.albumsuid = itemInfo.albumsuid;
+                                $('.modal-title').text('编辑商品')
                                 openModal('goods',goodsFormsInfo);
                             }
 
@@ -434,6 +438,8 @@
                             $('#addCateforms').idealforms('addRules',{
                                 'catename':'required ajax'
                             });
+
+
                             break;
 
                         case "goods":
@@ -630,7 +636,7 @@
                 function checkSelect(){
                     var isSelect = false;
                     if (this.selectTreeItemID == 0){
-                        updateAlert('请选中分类条目后再操作...！','alert-error',2000);
+                        updateAlert('请选中类别条目后再操作...！','alert-error',2000);
                         isSelect = false;
                     }else{
                         isSelect = true;

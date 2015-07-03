@@ -148,7 +148,7 @@ var  ROOT = "/wh";
     <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/jquery.easyui.min.js"></script>
     <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/custombox.min.js"></script>
     <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/treegrid-dnd.js"></script>
-    <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/jquery.idealforms.js"></script>
+    <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/jquery.idealforms.min.js"></script>
     <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/jquery.idealforms.i18n.ch.js"></script>
     <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/Sortable.js"></script>
 
@@ -168,7 +168,7 @@ var  ROOT = "/wh";
       </ul>
 </div><?php endif; ?>
 <?php if(!empty($normal_tips)): ?><p class="normal_tips"><b class="fa fa-info-circle"></b> <?php echo ($normal_tips); ?></p><?php endif; ?>
-            <?php if($need_datainfo): $__FOR_START_579392367__=0;$__FOR_END_579392367__=$ayitem;for($i=$__FOR_START_579392367__;$i < $__FOR_END_579392367__;$i+=1){ ?><div class="index_tap total">
+            <?php if($need_datainfo): $__FOR_START_728725167__=0;$__FOR_END_728725167__=$ayitem;for($i=$__FOR_START_728725167__;$i < $__FOR_END_728725167__;$i+=1){ ?><div class="index_tap total">
         <ul  class="inner" style="background-color:<?php echo ($itemArr[$i]['bgcolor']); ?>;
                                  border:<?php echo ($itemArr[$i]['bgsolid']); ?>">
             <li class="index_tap_item total_fans extra">
@@ -245,7 +245,7 @@ var  ROOT = "/wh";
                 <button type="button" class="easyui-linkbutton" style="position: absolute; top: 5px;right: 5px;" onclick="closModal();">
                     <span>&times;</span><span class="sr-only">Close</span>
                 </button>
-                <h4 class="modal-title">添加类别</h4>
+                <h4 class="modal-title"></h4>
                 <div class="modal-text">
                     <form id="addCateforms" class="idealforms" novalidate autocomplete="off" action="/" method="post">
                             <div id="cate-name-div" class="field">
@@ -269,7 +269,7 @@ var  ROOT = "/wh";
                 <button type="button" class="easyui-linkbutton" style="position: absolute; top: 5px;right: 5px;" onclick="closModal(event,true);">
                     <span>&times;</span><span class="sr-only">Close</span>
                 </button>
-                <h4 class="modal-title">添加商品</h4>
+                <h4 class="modal-title"></h4>
                 <div class="modal-text">
 
                     <form id="addGoodsforms" class="idealforms" novalidate autocomplete="off" action="/" method="post">
@@ -490,6 +490,7 @@ var  ROOT = "/wh";
                             cateFormsInfo.cateoptions = getSetSelectValue();
                             currHandFormInfo = cateFormsInfo;
                             isEditForms = false;
+                            $('.modal-title').text('添加类别')
                             openModal('cate',cateFormsInfo);
                             break
 
@@ -498,6 +499,7 @@ var  ROOT = "/wh";
                             goodsFormsInfo.cateoptions = getSetSelectValue();
                             currHandFormInfo = goodsFormsInfo;
                             isEditForms = false;
+                            $('.modal-title').text('添加商品')
                             openModal('goods',goodsFormsInfo);
                             break
 
@@ -517,6 +519,7 @@ var  ROOT = "/wh";
                                 cateFormsInfo.id = itemInfo.id;
                                 cateFormsInfo.catename = itemInfo.name;
                                 cateFormsInfo.cateoptions = itemInfo.pid;
+                                $('.modal-title').text('编辑类别');
                                 openModal('cate',cateFormsInfo);
                             }else{
                                 currHandFormInfo = goodsFormsInfo;
@@ -531,6 +534,7 @@ var  ROOT = "/wh";
                                 goodsFormsInfo.cpattern = itemInfo.cpattern;
                                 goodsFormsInfo.albums = itemInfo.albums;
                                 goodsFormsInfo.albumsuid = itemInfo.albumsuid;
+                                $('.modal-title').text('编辑商品')
                                 openModal('goods',goodsFormsInfo);
                             }
 
@@ -590,6 +594,8 @@ var  ROOT = "/wh";
                             $('#addCateforms').idealforms('addRules',{
                                 'catename':'required ajax'
                             });
+
+
                             break;
 
                         case "goods":
@@ -786,7 +792,7 @@ var  ROOT = "/wh";
                 function checkSelect(){
                     var isSelect = false;
                     if (this.selectTreeItemID == 0){
-                        updateAlert('请选中分类条目后再操作...！','alert-error',2000);
+                        updateAlert('请选中类别条目后再操作...！','alert-error',2000);
                         isSelect = false;
                     }else{
                         isSelect = true;
