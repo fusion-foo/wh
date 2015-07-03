@@ -26,26 +26,39 @@ class GoodsManagerController extends BaseController{
     public function verifyName(){
         $map ['token'] = get_token ();
         $kind = I('get.kind');
+        $isEdit = I('get.isEdit');
         switch($kind){
             case 'cate':
-                $map ['name'] = I('post.catename');
-                $cateModel = M("shop_category");
-                $hasOne = $cateModel->where($map)->select();
+                $name = I('post.catename');
+                $model = M("shop_category");
                 break;
 
             case 'goods':
-                $map ['name'] = I('post.goodsname');
-                $cateModel = M("shop_goods");
-                $hasOne = $cateModel->where($map)->select();
+                $name = I('post.goodsname');
+                $model = M("shop_goods");
                 break;
         }
 
-        if($hasOne){
-            echo json_encode(false);
+        if($isEdit == 'true'){
+            $id = I('get.id');
+            $map['id'] = $id;
+            $oriName = $model->where($map)->select();
+            $oriName = $oriName[0]['name'];
+            if($oriName == $name){
+                $retOK = true;
+            }else{
+                unset($map['id']);
+                $map ['name'] = $name;
+                $hasOne = $model->where($map)->select();
+                $retOK = !$hasOne;
+            }
         }else{
-            echo json_encode(true);
+            $map ['name'] = $name;
+            $hasOne = $model->where($map)->select();
+            $retOK = !$hasOne;
         }
 
+        echo json_encode($retOK);
 
     }
 
@@ -164,7 +177,7 @@ class GoodsManagerController extends BaseController{
            }
 
            $data['token'] = $map ['token'];
-           $data['state'] = 'closed';
+           $data['state'] = 'open';
            $data['name'] = $name;
            $data['pid'] = $pid;
            $isAdded = $cateModel -> add($data);
@@ -311,12 +324,54 @@ class GoodsManagerController extends BaseController{
 
     }
 
-    public function add(){
+    public function editGoods(){
+        $map ['token'] = get_token ();
+        $map ['id'] =   I('id');
+        $goodsModel = M("shop_goods");
+
+
+        $data['token'] = $map ['token'];
+        $data['name'] = I('goodsname');;
+        $data['cate_id'] =  I('cateoptions');
+        $data['mprice']   = I('mprice');
+        $data['sprice']   = I('sprice');
+        $data['pawarded'] = I('pawarded');
+        $data['brief']    = I('brief');
+        $data['albums']   = I('albums');
+        $data['albumsuid']   = I('albumsuid');
+        $data['cpattern'] = I('cpattern');
+        $data['mTime']    = time();
+
+
+        $isSave = $goodsModel->where($map)->save($data);
+
+        $data['CGJson'] = get_category_goods_json();
+        $data['CJson'] = get_category_json();
+        $resulData['info'] = $isSave ? 'success':'error';
+        $resulData['data'] = $data;
+        $this->ajaxReturn($resulData);
 
     }
 
-    public function edit(){
+    public function editCate(){
+        $map ['token'] = get_token ();
+        $map ['id'] =   I('id');
+        $cateModel = M("shop_category");
 
+
+        $data['token'] = $map ['token'];
+        $data['name'] = I('catename');;
+        $data['pid'] =  I('cateoptions');
+        $data['state'] =  I('open');
+
+
+        $isSave = $cateModel->where($map)->save($data);
+
+        $data['CGJson'] = get_category_goods_json();
+        $data['CJson'] = get_category_json();
+        $resulData['info'] = $isSave ? 'success':'error';
+        $resulData['data'] = $data;
+        $this->ajaxReturn($resulData);
     }
 
     public function delItem(){

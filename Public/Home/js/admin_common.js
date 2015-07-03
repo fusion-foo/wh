@@ -202,11 +202,13 @@
                 yse_btn[0].handler = handler;
                 cancel_btn[0].handler = handler;
                 yse_btn.click(function(event){
-                    event.currentTarget.handler.call(null,true);
+                    if(event.currentTarget.handler)event.currentTarget.handler.call(null,true);
                     closeAlert();
+                    event.currentTarget.handler = null;
                 });
                 cancel_btn.click(function(event){
-                    event.currentTarget.handler.call(null,false);
+                    if(event.currentTarget.handler)event.currentTarget.handler.call(null,false);
+                    event.currentTarget.handler = null;
                 });
             }
         }else{

@@ -148,7 +148,7 @@ var  ROOT = "/wh";
     <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/jquery.easyui.min.js"></script>
     <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/custombox.min.js"></script>
     <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/treegrid-dnd.js"></script>
-    <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/jquery.idealforms.min.js"></script>
+    <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/jquery.idealforms.js"></script>
     <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/jquery.idealforms.i18n.ch.js"></script>
     <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/Sortable.js"></script>
 
@@ -168,7 +168,7 @@ var  ROOT = "/wh";
       </ul>
 </div><?php endif; ?>
 <?php if(!empty($normal_tips)): ?><p class="normal_tips"><b class="fa fa-info-circle"></b> <?php echo ($normal_tips); ?></p><?php endif; ?>
-            <?php if($need_datainfo): $__FOR_START_2113912906__=0;$__FOR_END_2113912906__=$ayitem;for($i=$__FOR_START_2113912906__;$i < $__FOR_END_2113912906__;$i+=1){ ?><div class="index_tap total">
+            <?php if($need_datainfo): $__FOR_START_579392367__=0;$__FOR_END_579392367__=$ayitem;for($i=$__FOR_START_579392367__;$i < $__FOR_END_579392367__;$i+=1){ ?><div class="index_tap total">
         <ul  class="inner" style="background-color:<?php echo ($itemArr[$i]['bgcolor']); ?>;
                                  border:<?php echo ($itemArr[$i]['bgsolid']); ?>">
             <li class="index_tap_item total_fans extra">
@@ -184,6 +184,7 @@ var  ROOT = "/wh";
             </li>
         </ul>
     </div><?php } endif; ?>
+
 
             <div id="treeContents" style="padding: 20px">
                 <span><p>商品列表</p></span>
@@ -234,6 +235,7 @@ var  ROOT = "/wh";
                 <div class="menu-sep"></div>
                 <div onclick="collapseItem()">合闭</div>
                 <div onclick="expanItem()">展开</div>
+
             </div>
 
 
@@ -302,9 +304,9 @@ var  ROOT = "/wh";
                             <div class="field">
                                 <label class="main">消费方式:</label>
                                 <p class="group">
-                                    <label><input name="cpatterns[]" type="checkbox" value="0" data-idealforms-rules="minoption:1" checked="checked" /> 外卖配送 (外卖人员配送至客户地址) </label>
-                                    <label><input name="cpatterns[]" type="checkbox" value="1" /> 店内消费 (凭消费订单到店内消费) </label>
-                                    <label><input name="cpatterns[]" type="checkbox" value="2" /> 预定自提 (预定时间通知客户到店内自提)</label>
+                                    <label><input id="c0" name="cpatterns[]" type="checkbox" value="0" data-idealforms-rules="minoption:1"/> 外卖配送 (外卖人员配送至客户地址) </label>
+                                    <label><input id="c1" name="cpatterns[]" type="checkbox" value="1"/> 店内消费 (凭消费订单到店内消费) </label>
+                                    <label><input id="c2" name="cpatterns[]" type="checkbox" value="2"/> 预定自提 (预定时间通知客户到店内自提)</label>
                                 </p>
                                 <span class="error"></span>
                             </div>
@@ -353,6 +355,7 @@ var  ROOT = "/wh";
                 var categoryData = <?php echo ($categoryData); ?>;
                 var selectTreeItemID = 0;
                 var wname = '<?php echo ($member_public["public_name"]); ?>';
+                var verifyGN = '<?php echo ($verifyGN); ?>';
                 var albumsUID = 0;
                 var upFileNameAry = [];
                 var currModalFroms;
@@ -363,6 +366,20 @@ var  ROOT = "/wh";
 
                 $.ajaxSetup({
                     cache: false
+                });
+
+                $( document ).ajaxSend(function( event, request, settings ) {
+                    if(settings.url.indexOf('verifyName')>=0){
+                        var resetURL = settings.url;
+                        if(isEditForms){
+                            resetURL = resetURL + '&isEdit=true&id=' + currHandFormInfo.id;
+                        }else{
+                            resetURL = resetURL + '&isEdit=false';
+                        }
+
+                        settings.url = resetURL;
+
+                    }
                 });
 
                 $(function(){
@@ -381,8 +398,7 @@ var  ROOT = "/wh";
                     });
 
                     $('#tg').treegrid({ onDblClickRow: function (row) {
-                        //console.log(row)
-                        edit(row.id,row.isCatalog);
+                        openModalHandler('edit')
                     }});
 
                     $('#tg').treegrid({ onSelect: function (index, row) {
@@ -553,6 +569,7 @@ var  ROOT = "/wh";
 
 
                 function openModal(type,formsInfo){
+                    $('#addGoodsforms').idealforms('_init');
                     var tagerModal;
                     var modalWidth;
                     var selectorStr  = (type === 'cate' ? '#addCateforms':'#addGoodsforms');
@@ -570,11 +587,14 @@ var  ROOT = "/wh";
 
                             //设置表单信息
                             if(formsInfo.catename)currModalFroms.find('#add-cate-input').val(formsInfo.catename);
+                            $('#addCateforms').idealforms('addRules',{
+                                'catename':'required ajax'
+                            });
                             break;
 
                         case "goods":
                             initZyUpload();
-                            albumsUID = this.GUIGenerator(8, 16);
+                            albumsUID = isEditForms ? formsInfo.albumsuid :this.GUIGenerator(8, 16);
                             tagerModal = '#addgoods-modal';
                             modalWidth = 800;
                             $('#cateSelectDiv').insertAfter('#goods-name');
@@ -588,15 +608,31 @@ var  ROOT = "/wh";
                             //if(formsInfo.cpattern)currModalFroms.find('#input[name="cpatterns[]"]').val(formsInfo.cpattern)
                             if(formsInfo.brief)currModalFroms.find('#goods-brief-input').val(formsInfo.brief);
                             if(formsInfo.cpattern){
-                                var cp = $("input[name='cpatterns[]']");
+
                                 var cpatternAry = formsInfo.cpattern.split(',');
                                 for(x in cpatternAry){
                                     var index = cpatternAry[x];
-                                    var citem = cp[parseInt(index)];
-                                    citem.checked = "checked";
+                                    var idStr = '#c' + index;
+                                    var citem = $(idStr);
+                                    if(citem){
+                                        citem.prop("checked", 'checked');
+                                        var spanx = citem.siblings('span');
+                                        if(spanx){
+                                            spanx.removeClass("checked");
+                                            spanx.removeClass("focus");
+                                            spanx.addClass("checked");
+                                        }
+                                    }
                                 }
-                                console.log('fdfd');
                             }
+
+                            $('#addGoodsforms').idealforms('addRules',{
+                                'goodsname': 'required ajax',
+                                'mprice':'required number',
+                                'sprice':'required number',
+                                'pawarded':'number',
+                                'cpatterns[]':'minoption:1'
+                            });
 
                             break
                     }
@@ -635,7 +671,7 @@ var  ROOT = "/wh";
                              case "sumit-cate":
                                  verifyCateSubmit(function(){
                                      currHandFormInfo.catename = $('#add-cate-input').val().trim();
-                                     addCategory(currHandFormInfo);
+                                     submitCategory(currHandFormInfo);
                                  });
                                  break;
 
@@ -656,7 +692,7 @@ var  ROOT = "/wh";
                                          tempAry.push(citem.value);
                                      }
                                      currHandFormInfo.cpattern = tempAry.join();
-                                     addGoods(currHandFormInfo);
+                                     submitGoods(currHandFormInfo);
 
                                      function getAblumsData(){
                                          var upLoadedList = $("#goods-albums").zyUpload('getMovebleFiles',true);
@@ -758,11 +794,20 @@ var  ROOT = "/wh";
                     return isSelect;
                 }
 
-                function addCategory(formInfo){
-                    var ajURL = '<?php echo addons_url ( 'Shop://GoodsManager/addCateNode');?>';
+                function submitCategory(formInfo){
+                    var ajURL;
+                    var tipStr;
+                    if(isEditForms){
+                        ajURL = '<?php echo addons_url ( 'Shop://GoodsManager/editCate');?>';
+                        tipStr = '编辑商品信息成功！';
+                    }else{
+                        ajURL = '<?php echo addons_url ( 'Shop://GoodsManager/addCateNode');?>';
+                        tipStr = '添加信息成功！';
+                    }
+
                     var resultData = $.ajax({url:ajURL,async:false,data:formInfo,dataType:'json'});
                     if(resultData.responseJSON.info == 'success'){
-                        updateAlert('添加成功！','alert-success',2000);
+                        updateAlert(tipStr,'alert-success',2000);
                         Custombox.close()
                         goodsData = JSON.parse(resultData.responseJSON.data.CGJson);
                         categoryData = JSON.parse(resultData.responseJSON.data.CJson);
@@ -770,16 +815,25 @@ var  ROOT = "/wh";
                         //$('#tg').treegrid('select', resultData.responseJSON.data.id);
 
                     }else{
-                        updateAlert('无法添加该类别' + resultData.responseJSON.data,'alert-error',2000);
+                        updateAlert('操作失败，请重试...' + resultData.responseJSON.data,'alert-error',2000);
                     }
                 }
 
 
-                function addGoods(formInfo){
-                    var ajURL = '<?php echo addons_url ( 'Shop://GoodsManager/addGoods');?>';
-                            var resultData = $.ajax({url:ajURL,async:false,data:formInfo,dataType:'json'});
+                function submitGoods(formInfo){
+                    var ajURL;
+                    var tipStr;
+                    if(isEditForms){
+                        ajURL = '<?php echo addons_url ( 'Shop://GoodsManager/editGoods');?>';
+                        tipStr = '编辑商品信息成功！';
+                    }else{
+                        ajURL = '<?php echo addons_url ( 'Shop://GoodsManager/addGoods');?>';
+                        tipStr = '添加商品成功！'
+                    }
+                    var resultData = $.ajax({url:ajURL,async:false,data:formInfo,dataType:'json'});
                     if(resultData.responseJSON.info == 'success'){
-                        updateAlert('添加成功！','alert-success',2000);
+
+                        updateAlert(tipStr,'alert-success',2000);
                         Custombox.close()
                         goodsData = JSON.parse(resultData.responseJSON.data.CGJson);
                         categoryData = JSON.parse(resultData.responseJSON.data.CJson);
@@ -789,7 +843,7 @@ var  ROOT = "/wh";
                         //$('#tg').treegrid('select', resultData.responseJSON.data.id);
 
                     }else{
-                        updateAlert('无法添加该类别' + resultData.responseJSON.data,'alert-error',2000);
+                        updateAlert('操作失败，请重试...' + resultData.responseJSON.data,'alert-error',2000);
                     }
 
                 }
@@ -845,6 +899,10 @@ var  ROOT = "/wh";
                     var insertOBJ = {id:'0',text:noneStr,name:noneStr};
                     copyCategoryData.splice(0, 0, insertOBJ);
                     return copyCategoryData;
+                }
+
+                function setVerifyNameURL(){
+
                 }
 
                 function initZyUpload(){
