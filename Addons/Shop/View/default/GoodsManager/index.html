@@ -18,7 +18,7 @@
     <script type="text/javascript" src="{:ADDON_PUBLIC_PATH}/js/jquery.idealforms.min.js"></script>
     <script type="text/javascript" src="{:ADDON_PUBLIC_PATH}/js/jquery.idealforms.i18n.ch.js"></script>
     <script type="text/javascript" src="{:ADDON_PUBLIC_PATH}/js/Sortable.js"></script>
-
+   
     <script type="text/javascript" src="{:ADDON_PUBLIC_PATH}/js/zyFile.js"></script>
     <script type="text/javascript" src="{:ADDON_PUBLIC_PATH}/js/zyUpload.js"></script>
 
@@ -178,7 +178,7 @@
                             </div>
                         </div>
                     </form>
-                    <h6 class="modal-title"></h6>
+
                     <div style="text-align: right; margin-top: 5px">
                         <a id="sumit-goods" href="#" class="easyui-linkbutton" plain="true" onclick="formsSubmitHander(event)"><h4>确定</h4></a>
                         <a  href="#" class="easyui-linkbutton" plain="true" onclick="closModal(event,true)"><h4>取消</h4></a>
@@ -204,9 +204,11 @@
                 var upFileNameAry = [];
                 var currModalFroms;
                 var currHandFormInfo;
-                var upFiles = ZYFILE.getUpFileNum();
+                var upFiles = ZYFILE.funReturnNeedFiles();
                 var allPerFiles = ZYFILE.getAllFiles();
                 var isEditForms = false;
+
+
 
                 $.ajaxSetup({
                     cache: false
@@ -378,6 +380,7 @@
                                 goodsFormsInfo.cpattern = itemInfo.cpattern;
                                 goodsFormsInfo.albums = itemInfo.albums;
                                 goodsFormsInfo.albumsuid = itemInfo.albumsuid;
+                                goodsFormsInfo.exstorageURL = itemInfo.exstorageURL;
                                 $('.modal-title').text('编辑商品')
                                 openModal('goods',goodsFormsInfo);
                             }
@@ -443,7 +446,7 @@
                             break;
 
                         case "goods":
-                            initZyUpload();
+                            initZyUpload(formsInfo.albums,formsInfo.exstorageURL);
                             albumsUID = isEditForms ? formsInfo.albumsuid :this.GUIGenerator(8, 16);
                             tagerModal = '#addgoods-modal';
                             modalWidth = 800;
@@ -570,7 +573,7 @@
                            updateAlert('正在上传图片，晢时无法提交，请稍后....','alert-warn',4000);
                            return;
                        }
-                       upFiles = ZYFILE.getUpFileNum();
+                       upFiles = ZYFILE.funReturnNeedFiles();
                        allPerFiles = ZYFILE.getAllFiles();
                        var tipStr;
                        var handler;
@@ -755,7 +758,7 @@
 
                 }
 
-                function initZyUpload(){
+                function initZyUpload(albums,exstorageURL){
                     $("#goods-albums").empty();
                     $("#goods-albums").zyUpload({
                         width            :   "440px",                 // 宽度
@@ -768,6 +771,8 @@
                         del              :   true,                    // 是否可以删除文件
                         finishDel        :   false,  				  // 是否在上传文件完成后删除预览
                         get7TokenURL     :"{:addons_url ( 'Shop://GoodsManager/get7Token')}",
+                        albums           :albums,
+                        exstorageURL     :exstorageURL,
                         /* 外部获得的回调接口 */
                         onSelect: function(files, allFiles){                    // 选择文件的回调方法
                             console.info("当前选择了以下文件：");
@@ -783,7 +788,7 @@
                             console.info(file);
                             console.info("当前剩余的文件：");
                             console.info(surplusFiles);
-                            if(file.hasOwnProperty('aliases')){
+                            if(file.hasOwnProperty('aliases') && !isEditForms){
                                 var delFile = [file];
                                 delFiles(delFile);
                             }

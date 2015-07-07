@@ -85,15 +85,12 @@ class GoodsManagerController extends BaseController{
            $map['albumsuid'] = $albumsuid;
            $map ['token'] = get_token ();
            $keys =  explode(",", $keys);
-           $errs = [];
+           $errs = false;
 
            $rtInfo = $this->delItemPics($keys);
+           if(!is_null($rtInfo[1]))$errs = $rtInfo[1];
 
-           foreach($rtInfo as $key => $value){
-               if($value[1])$errs[] = $value[1];
-           }
-
-           if (count($errs) > 0) {
+           if ($errs) {
                 $data['errs'] = $errs;
                 $resulData['info'] = 'error';
                 $resulData['data'] = $data;
@@ -104,7 +101,8 @@ class GoodsManagerController extends BaseController{
 
                if($hasOne){
                    $albumsStr = $goodsModel->where($map)->field('albums')->select();
-                   $albums = explode(",", $albumsStr);
+                   $expStr =  $albumsStr[0][albums];
+                   $albums = explode(",", $expStr);
                    $afterDelAlbums = array_diff($albums,$keys);
                    $data['albums'] = join(',',$afterDelAlbums);
                    $isSaveGoods = $goodsModel->where($map)->data($data)->save();
@@ -146,7 +144,7 @@ class GoodsManagerController extends BaseController{
            }
 
            $hasOne = $model->where($map)->field($filedStr)->select();
-
+           $hasOne[0][exstorageURL] = 'http://7xjsh9.com1.z0.glb.clouddn.com/';
            if($hasOne){
                $resulData['info'] = 'success';
                $resulData['data'] = $hasOne;

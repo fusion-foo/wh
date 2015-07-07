@@ -151,7 +151,7 @@ var  ROOT = "/wh";
     <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/jquery.idealforms.min.js"></script>
     <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/jquery.idealforms.i18n.ch.js"></script>
     <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/Sortable.js"></script>
-
+   
     <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/zyFile.js"></script>
     <script type="text/javascript" src="<?php echo ADDON_PUBLIC_PATH;?>/js/zyUpload.js"></script>
 
@@ -168,7 +168,7 @@ var  ROOT = "/wh";
       </ul>
 </div><?php endif; ?>
 <?php if(!empty($normal_tips)): ?><p class="normal_tips"><b class="fa fa-info-circle"></b> <?php echo ($normal_tips); ?></p><?php endif; ?>
-            <?php if($need_datainfo): $__FOR_START_728725167__=0;$__FOR_END_728725167__=$ayitem;for($i=$__FOR_START_728725167__;$i < $__FOR_END_728725167__;$i+=1){ ?><div class="index_tap total">
+            <?php if($need_datainfo): $__FOR_START_2049690081__=0;$__FOR_END_2049690081__=$ayitem;for($i=$__FOR_START_2049690081__;$i < $__FOR_END_2049690081__;$i+=1){ ?><div class="index_tap total">
         <ul  class="inner" style="background-color:<?php echo ($itemArr[$i]['bgcolor']); ?>;
                                  border:<?php echo ($itemArr[$i]['bgsolid']); ?>">
             <li class="index_tap_item total_fans extra">
@@ -334,7 +334,7 @@ var  ROOT = "/wh";
                             </div>
                         </div>
                     </form>
-                    <h6 class="modal-title"></h6>
+
                     <div style="text-align: right; margin-top: 5px">
                         <a id="sumit-goods" href="#" class="easyui-linkbutton" plain="true" onclick="formsSubmitHander(event)"><h4>确定</h4></a>
                         <a  href="#" class="easyui-linkbutton" plain="true" onclick="closModal(event,true)"><h4>取消</h4></a>
@@ -360,9 +360,11 @@ var  ROOT = "/wh";
                 var upFileNameAry = [];
                 var currModalFroms;
                 var currHandFormInfo;
-                var upFiles = ZYFILE.getUpFileNum();
+                var upFiles = ZYFILE.funReturnNeedFiles();
                 var allPerFiles = ZYFILE.getAllFiles();
                 var isEditForms = false;
+
+
 
                 $.ajaxSetup({
                     cache: false
@@ -534,6 +536,7 @@ var  ROOT = "/wh";
                                 goodsFormsInfo.cpattern = itemInfo.cpattern;
                                 goodsFormsInfo.albums = itemInfo.albums;
                                 goodsFormsInfo.albumsuid = itemInfo.albumsuid;
+                                goodsFormsInfo.exstorageURL = itemInfo.exstorageURL;
                                 $('.modal-title').text('编辑商品')
                                 openModal('goods',goodsFormsInfo);
                             }
@@ -599,7 +602,7 @@ var  ROOT = "/wh";
                             break;
 
                         case "goods":
-                            initZyUpload();
+                            initZyUpload(formsInfo.albums,formsInfo.exstorageURL);
                             albumsUID = isEditForms ? formsInfo.albumsuid :this.GUIGenerator(8, 16);
                             tagerModal = '#addgoods-modal';
                             modalWidth = 800;
@@ -726,7 +729,7 @@ var  ROOT = "/wh";
                            updateAlert('正在上传图片，晢时无法提交，请稍后....','alert-warn',4000);
                            return;
                        }
-                       upFiles = ZYFILE.getUpFileNum();
+                       upFiles = ZYFILE.funReturnNeedFiles();
                        allPerFiles = ZYFILE.getAllFiles();
                        var tipStr;
                        var handler;
@@ -911,7 +914,7 @@ var  ROOT = "/wh";
 
                 }
 
-                function initZyUpload(){
+                function initZyUpload(albums,exstorageURL){
                     $("#goods-albums").empty();
                     $("#goods-albums").zyUpload({
                         width            :   "440px",                 // 宽度
@@ -924,6 +927,8 @@ var  ROOT = "/wh";
                         del              :   true,                    // 是否可以删除文件
                         finishDel        :   false,  				  // 是否在上传文件完成后删除预览
                         get7TokenURL     :"<?php echo addons_url ( 'Shop://GoodsManager/get7Token');?>",
+                        albums           :albums,
+                        exstorageURL     :exstorageURL,
                         /* 外部获得的回调接口 */
                         onSelect: function(files, allFiles){                    // 选择文件的回调方法
                             console.info("当前选择了以下文件：");
@@ -939,7 +944,7 @@ var  ROOT = "/wh";
                             console.info(file);
                             console.info("当前剩余的文件：");
                             console.info(surplusFiles);
-                            if(file.hasOwnProperty('aliases')){
+                            if(file.hasOwnProperty('aliases') && !isEditForms){
                                 var delFile = [file];
                                 delFiles(delFile);
                             }

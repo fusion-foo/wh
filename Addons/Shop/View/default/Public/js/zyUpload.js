@@ -26,6 +26,8 @@
 					del              : true,  						// 是否可以删除文件
 					finishDel        : false,  						// 是否在上传文件完成后删除预览
                     get7TokenURL     : "",
+                    albums           : "",
+                    exstorageURL     : "",
                 /* 提供给外部的接口方法 */
 					onSelect         : function(selectFiles, files){},// 选择文件的回调方法  selectFile:当前选中的文件  allFiles:还没上传的全部文件
 					onDelete		 : function(file, files){},     // 删除一个文件的回调方法 file:当前删除的文件  files:删除之后的文件
@@ -39,6 +41,7 @@
 			this.init = function(){
 				this.createHtml();  // 创建组件html
 				this.createCorePlug();  // 调用核心js
+                this.setOriAlbums(para.albums,para.exstorageURL);
 			};
 			
 			/**
@@ -138,6 +141,55 @@
                  });
                  return retAry;
             };
+
+            this.setOriAlbums = function(albums,exstorageURL){
+                 if(!albums)return;
+                 if(albums == '' || albums.length <= 0)return;
+                 var strAry = albums.split(',');
+                 var oriAlbumsFiles = setOriFile(strAry);
+                 ZYFILE.perUploadFile = ZYFILE.perUploadFile.concat(oriAlbumsFiles);
+                 showFiles(oriAlbumsFiles);
+                setSuccessStatus(oriAlbumsFiles);
+                 var el = document.getElementById('preview');
+                 var sortable = Sortable.create(el,{filter: ".add_upload"});
+
+                 function setSuccessStatus(oriAlbumsFiles){
+                     $.each(oriAlbumsFiles,function(k,v){
+                         ZYFILE.onSuccess(v);
+                     })
+                 }
+
+                 function showFiles(oriAlbumsFiles){
+                         var itemHtml = '';
+                         $.each(oriAlbumsFiles,function(k,v){
+                             itemHtml += self.funDisposePreviewHtml(v, v.url);
+                         });
+                         funAppendPreviewHtml(itemHtml);
+                 }
+
+
+                 function setOriFile(albums){
+                        var retAry = [];
+                        $.each(albums,function(k,v){
+                            var file = {
+                                name:getFileRealName(v),
+                                aliases:v,
+                                url:exstorageURL + v,
+                                type:'image',
+                                index:ZYFILE.fileNum
+                            }
+                            ZYFILE.fileNum++;
+                            retAry.push(file);
+                        });
+                        return retAry;
+                 }
+
+                 function getFileRealName(aliases){
+                         return aliases.substr(aliases.lastIndexOf('/')+1);
+                 }
+
+            };
+
 			
 			/**
 			 * 功能：显示统计信息和绑定继续上传和上传按钮的点击事件
@@ -186,7 +238,7 @@
 			 * 参数: files 本次选择的文件
 			 * 返回: 预览的html
 			 */
-			this.funDisposePreviewHtml = function(file, e){
+			this.funDisposePreviewHtml = function(file, url){
 				var html = "";
 				var imgWidth = parseInt(para.itemWidth.replace("px", ""))-15;
 				
@@ -220,7 +272,7 @@
 					html += '	</div>';
 					html += '	<a style="height:'+para.itemHeight+';width:'+para.itemWidth+';" href="#" class="imgBox">';
 					html += '		<div class="uploadImg" style="width:'+imgWidth+'px">';				
-					html += '			<img id="uploadImage_'+file.index+'" class="upload_image" src="' + e.target.result + '" style="width:expression(this.width > '+imgWidth+' ? '+imgWidth+'px : this.width)" />';                                                                 
+					html += '			<img id="uploadImage_'+file.index+'" class="upload_image" src="' + url + '" style="width:expression(this.width > '+imgWidth+' ? '+imgWidth+'px : this.width)" />';
 					html += '		</div>';
 					html += '	</a>';
 					html += '	<p id="uploadProgress_'+file.index+'" class="file_progress"></p>';
@@ -282,8 +334,8 @@
 								var reader = new FileReader()
 								reader.onload = function(e) {
 									// 处理下配置参数和格式的html
-									html += self.funDisposePreviewHtml(file, e);
-									
+									html += self.funDisposePreviewHtml(file, e.target.result);
+
 									i++;
 									// 再接着调用此方法递归组成可以预览的html
 									funDealtPreviewHtml();
@@ -298,64 +350,8 @@
 
                             }
 						};
-						
-						// 添加预览html
-						var funAppendPreviewHtml = function(html){
-							// 添加到添加按钮前
-							if(para.dragDrop){
-								$("#preview").append(html);
-							}else{
-								$(".add_upload").before(html);
-							}
-							// 绑定删除按钮
-							funBindDelEvent();
-							funBindHoverEvent();
-                            // 绑定双击事件
-                            funBindDoudleClick();
-						};
 
-                        var funBindDoudleClick = function(){
-                            $('.upload_append_list').dblclick(function(event){
-                                var fileIndex = parseInt($(this).attr("data-index"));
-                                var dbFile = ZYFILE.getAllFiles()[fileIndex];
-                                if(dbFile && !dbFile.hasOwnProperty('aliases')){
-                                    ZYFILE.funUploadFile(dbFile, ZYFILE.get7Token());
-                                };
-                            });
-                        };
-
-						// 绑定删除按钮事件
-						var funBindDelEvent = function(){
-							if($(".file_del").length>0){
-								// 删除方法
-								$(".file_del").click(function() {
-									ZYFILE.funDeleteFile(parseInt($(this).attr("data-index")), true);
-									return false;	
-								});
-							}
-							
-							if($(".file_edit").length>0){
-								// 编辑方法
-								$(".file_edit").click(function() {
-									// 调用编辑操作
-									//ZYFILE.funEditFile(parseInt($(this).attr("data-index")), true);
-									return false;	
-								});
-							}
-						};
-						
-						// 绑定显示操作栏事件
-						var funBindHoverEvent = function(){
-							$(".upload_append_list").hover(
-								function (e) {
-									$(this).find(".file_bar").addClass("file_hover");
-								},function (e) {
-									$(this).find(".file_bar").removeClass("file_hover");
-								}
-							);
-						};
-						
-						funDealtPreviewHtml();		
+						funDealtPreviewHtml();
 					},
 					onDelete: function(file, files) {
 						// 移除效果
@@ -396,7 +392,7 @@
                         xIcon.css('display','inline');
 						$("#uploadProgress_" + file.index).hide();
 						$("#uploadFailure_" + file.index).show();
-						$("#uploadInf").append("<p>文件" + file.name + "上传失败！</p>");	
+						$("#uploadInf").append("<p>文件" + file.name + "上传失败！</p>");
 						//$("#uploadImage_" + file.index).css("opacity", 0.2);
 					},
 					onComplete: function(response){
@@ -414,6 +410,64 @@
 				ZYFILE = $.extend(ZYFILE, params);
 				ZYFILE.init();
 			};
+
+
+            // 添加预览html
+            function funAppendPreviewHtml(html){
+                // 添加到添加按钮前
+                if(para.dragDrop){
+                    $("#preview").append(html);
+                }else{
+                    $(".add_upload").before(html);
+                }
+                // 绑定删除按钮
+                funBindDelEvent();
+                funBindHoverEvent();
+                // 绑定双击事件
+                funBindDoudleClick();
+
+                function funBindDoudleClick(){
+                    $('.upload_append_list').dblclick(function(event){
+                        var fileIndex = parseInt($(this).attr("data-index"));
+                        var dbFile = ZYFILE.getAllFiles()[fileIndex];
+                        if(dbFile && !dbFile.hasOwnProperty('aliases')){
+                            ZYFILE.funUploadFile(dbFile, ZYFILE.get7Token());
+                        };
+                    });
+                };
+
+                // 绑定删除按钮事件
+                function funBindDelEvent(){
+                    if($(".file_del").length>0){
+                        // 删除方法
+                        $(".file_del").click(function() {
+                            ZYFILE.funDeleteFile(parseInt($(this).attr("data-index")), true);
+                            return false;
+                        });
+                    }
+
+                    if($(".file_edit").length>0){
+                        // 编辑方法
+                        $(".file_edit").click(function() {
+                            // 调用编辑操作
+                            //ZYFILE.funEditFile(parseInt($(this).attr("data-index")), true);
+                            return false;
+                        });
+                    }
+                };
+
+                // 绑定显示操作栏事件
+                function funBindHoverEvent(){
+                    $(".upload_append_list").hover(
+                        function (e) {
+                            $(this).find(".file_bar").addClass("file_hover");
+                        },function (e) {
+                            $(this).find(".file_bar").removeClass("file_hover");
+                        }
+                    );
+                };
+            };
+
 
 
             /**

@@ -52,8 +52,25 @@ var ZYFILE = {
 			this.funDragHover(e);
 			// 从事件中获取选中的所有文件
 			var files = e.target.files || e.dataTransfer.files;
+
+
+
 			self.lastUploadFile = this.uploadFile;
 			this.uploadFile = this.uploadFile.concat(this.filterFile(files));
+            //Fix 新添加存在相同的文件名字时候过滤...
+            var sameAry = [];
+            for(var i = 0; i < this.uploadFile.length; i++){
+                var file = this.uploadFile[i];
+                for(var x = 0; x < self.perUploadFile.length; x++){
+                    var perFile =  self.perUploadFile[x];
+                    if(perFile.name === file.name){
+                        sameAry.push(file);
+                    }
+                }
+            }
+            this.uploadFile = array_diff(this.uploadFile,sameAry);//Array.minus(this.uploadFile,sameAry);
+
+
 			var tmpFiles = [];
 			
 			// 因为jquery的inArray方法无法对object数组进行判断是否存在于，所以只能提取名称进行判断
@@ -82,7 +99,26 @@ var ZYFILE = {
 			this.funDealtFiles();
             self.fileInput.value = '';
 			return true;
-		},
+
+            function array_diff (arr1) {
+                var retArr = [],argl = arguments.length,k1 = '',i = 1,k = '',arr = {};
+                arr1keys: for (k1 in arr1) {
+                    for (i = 1; i < argl; i++) {
+                        arr = arguments[i];
+                        for (k in arr) {
+                            if (arr[k] === arr1[k1]) {
+                                // If it reaches here, it was found in at least one array, so try next value
+                                continue arr1keys;
+                            }
+                        }
+                        retArr.push(arr1[k1]);
+                    }
+                }
+
+                return retArr;
+            }
+
+        },
 		// 处理过滤后的文件，给每个文件设置下标
 		funDealtFiles : function(){
 			var self = this;
@@ -150,15 +186,11 @@ var ZYFILE = {
 			var self = this;  // 在each中this指向没个v  所以先将this保留
             var xhr = new XMLHttpRequest();
 
-
-
             var comName = this.getComName(file);
 			var formdata = new FormData();
 			    formdata.append("token", upLoadToken);
                 formdata.append("key", comName);
                 formdata.append("file", file);
-
-
 
             // 绑定上传事件
             // 进度
@@ -198,9 +230,6 @@ var ZYFILE = {
                 // 回调到外部
                 self.onFailure(file, e.message);
             }
-
-
-
         },
 
         getComName:function(file){
@@ -272,6 +301,8 @@ var ZYFILE = {
 				}, false);	
 			}
         }
+
+
 };
 
 
