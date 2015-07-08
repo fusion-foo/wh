@@ -349,6 +349,8 @@ class GoodsManagerController extends BaseController{
         $resulData['data'] = $data;
         $this->ajaxReturn($resulData);
 
+
+
     }
 
     public function editCate(){

@@ -127,7 +127,7 @@
 
             this.getMovebleFiles = function(justUploaded){
                  var retAry = [];
-                 var upLoadList = $('.upload_append_list');
+                 var upLoadList = $('.upload_append_list:visible');
                  $.each(upLoadList,function(i, item){
                      var fileIndex = parseInt($(item).attr("data-index"));
                      var dbFile = ZYFILE.getAllFiles()[fileIndex];
