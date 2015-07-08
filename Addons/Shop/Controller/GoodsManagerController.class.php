@@ -326,6 +326,17 @@ class GoodsManagerController extends BaseController{
         $map ['token'] = get_token ();
         $map ['id'] =   I('id');
         $goodsModel = M("shop_goods");
+        $perAlbums = $goodsModel->where($map)->field('albums')->select();
+        $perAlbums = $perAlbums[0][albums];
+        $perAlbums = explode(',',$perAlbums);
+        $upAlbums = explode(',', I('albums'));
+        $diffAlbums = array_diff($perAlbums,$upAlbums);
+        $delAlbums = null;
+        foreach ($diffAlbums as $key=>$val ) {
+               $isHasOne = in_array($val,$perAlbums);
+               if($isHasOne)$delAlbums[] = $val;
+        }
+        if(count($delAlbums) > 0) $rtInfo = $this->delItemPics($delAlbums);
 
 
         $data['token'] = $map ['token'];
